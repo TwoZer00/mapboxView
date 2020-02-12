@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/form.css">
+</head>
+<body>
+    <form action="">
+        <div class="form">
+            <div id="map"></div>
+            <div class="input" >
+                <input type="text" placeholder="first name">
+                <input type="text" placeholder="last name">
+                <input type="text" placeholder="disease">
+                <input type="text" placeholder="date register of disease">
+            </div>
+        </div>
+        <input type="text" id="long" value="0" hidden  >
+        <input type="text" id="lat" value="0" hidden >
+    </form>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRlN2JjMGppMDNvbzhrdzE2OWt0cCJ9.l0_1lx6-cBm3eb1fZXulbA';
+        var long = document.getElementById('long');
+        var lat = document.getElementById('lat');
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [0, 0],
+            zoom: 9
+        });
+        
+        var marker = new mapboxgl.Marker({
+        draggable: true
+        })
+        .setLngLat([0, 0])
+        .addTo(map);
+
+        function onDragEnd() {
+            var lngLat = marker.getLngLat();
+            long.value = lngLat.lng;
+            lat.value = lngLat.lat;
+        }
+        marker.on('dragend', onDragEnd);
+    </script>
+</body>
+</html>
