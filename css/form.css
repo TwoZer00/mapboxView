@@ -1,30 +1,75 @@
-
-body { 
-    margin: 0;
-    padding: 0;
+/* The Modal (background) */
+*{
+    font-family: Arial,sans-serif;
 }
-#map { 
-    position: absolute;
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
     top: 0;
-    bottom: 0; 
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    font-size: 2vw;
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+#button{
+    color:white;
+    text-align: center;
+    font-size: 30px;
+    width: 200px;
+    height: 40px;
+    border-radius: 9px;
+    background: black;
+    position: absolute;
+    top: 0 ;
+    left: 50%;
+    margin: 10px;
+    transform: translateX(-50%);
+}
+#button:hover{
+    cursor: pointer;
+}
+
+.modal-content form {
+    width: 100%;
+}
+.modal-content form p{
+    padding: 10px;
     width: 100%;
 }
 
-.input input{
-    display: inline-block;
-    margin: 5px;
+.modal-content form input[type="text"]{
+    width: 100%;
+    font-size: 30px;
 }
-.input{
-    position: absolute;
-}
-form{
-    width: auto;
-    margin: auto;
-    border: 1px black solid;
-}
-
-input{
-    font-size: 20px;
-    border-radius: 5px;
-    border: none;
+.modal-content form input[type="submit"]{
+    width: 100%;
+    font-size: 15px;
 }
