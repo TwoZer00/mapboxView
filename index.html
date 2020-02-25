@@ -7,6 +7,10 @@
     <title>Document</title>
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" 
+      href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" 
+      integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" 
+      crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,24 +29,33 @@
             margin-left: 25%;
         }
     </style>
+
     <div id='map'></div>
-    <div id="button" >Add new case</div>
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <!-- Modal content -->
+    
+    <div class="main-button">
+        <a href="javascript:void(0)" id="home-button">Home</a>
+        <span id="dashboardButton">Dashboard</span>
+        <span id="formButton">Add new case</span>
+    </div>
+    <div id="formModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
             <form action="POST">
                 <p>First name</p>
                 <p><input type="text" name="fname"></p>
                 <p>Last name</p>
                 <p><input type="text" name="lname"></p>
+                <p><input type="text" name="" ></p>
                 <input type="text" name="latitude" id="lat">
                 <input type="text" name="longitude" id="long">
                 <p><input type="submit"></p>
             </form>
         </div>
 
+    </div>
+    <div class="modal" id="dashboardModal">
+        <div class="modal-content">
+
+        </div>
     </div>
     <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRoamZ4MGphczNrcXA1NWw4dzN5MyJ9.-KxY1BPMApriPjGoMevTWg';
@@ -58,7 +71,8 @@
             positionOptions: {
                 enableHighAccuracy: true
             },
-            trackUserLocation: true
+            trackUserLocation: true,
+            showUserLocation:true
         })
     );
 
@@ -199,52 +213,42 @@
     var geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         marker: {
-            color: 'orange'
+            color: 'red'
         },
         mapboxgl: mapboxgl
     });
-    geocoder.on('finish',markera);
-    function markera(){
-        console.log("si0");
-        var marker = geocoder.marker;
-        marker.draggable = true;
+    geocoder.on('result',getCoor);
+    function getCoor(){
+        document.getElementById("lat").value = geocoder.mapMarker._lngLat.lat;
+        document.getElementById("long").value = geocoder.mapMarker._lngLat.lng;
     }
-
-    /*
-    geocoder.on('load',onQueryResult);
-    function onQueryResult(){
-        console.log("Entrando")
-        document.getElementById("lat").value = geocoder.options.proximity.longitude();
-        document.getElementById("long").value = geocoder.options.proximity.latitude();
-    }*/
     map.addControl(geocoder);
-
     </script>
 
     <script>
         // Get the modal
-        var modal = document.getElementById("myModal");
+        var modalF = document.getElementById("formModal");
+        var modalD = document.getElementById("dashboardModal");
 
         // Get the button that opens the modal
-        var btn = document.getElementById("button");
-
-        // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
+        var btnD = document.getElementById("dashboardButton");
+        var btnF = document.getElementById("formButton");
 
         // When the user clicks on the button, open the modal
-        btn.onclick = function() {
-            modal.style.display = "block";
+        btnF.onclick = function() {
+            modalF.style.display = "block";
         }
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
+        btnD.onclick = function(){
+            modalD.style.display = "block";
         }
 
         // When the user clicks anywhere outside of the modal, close it
         window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
+            if (event.target == modalF) {
+                modalF.style.display = "none";
+            }
+            else if(event.target == modalD){
+                modalD.style.display = "none";
             }
         }
     </script>
