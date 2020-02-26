@@ -12,6 +12,12 @@
       integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" 
       crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/animate.css" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js" ></script>
 </head>
 <body>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js"></script>
@@ -23,38 +29,93 @@
     <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
-    <style>
-        #geocoder-container > div {
-            min-width: 50%;
-            margin-left: 25%;
-        }
-    </style>
-
-    <div id='map'></div>
-    
-    <div class="main-button">
-        <a href="javascript:void(0)" id="home-button">Home</a>
-        <span id="dashboardButton">Dashboard</span>
-        <span id="formButton">Add new case</span>
-    </div>
-    <div id="formModal" class="modal">
-        <div class="modal-content">
-            <form action="POST">
-                <p>First name</p>
-                <p><input type="text" name="fname"></p>
-                <p>Last name</p>
-                <p><input type="text" name="lname"></p>
-                <p><input type="text" name="" ></p>
-                <input type="text" name="latitude" id="lat">
-                <input type="text" name="longitude" id="long">
-                <p><input type="submit"></p>
-            </form>
+    <div class="menu">
+        <div class="btn-group-vertical">
+            <button type="button" class="btn btn-dark">Home</button>
+            <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#dashboardModal">Dashboard</button>
+            <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#formModal">Add new case</button>
         </div>
-
     </div>
-    <div class="modal" id="dashboardModal">
-        <div class="modal-content">
+    <div id='map'></div>
+    <div class="modal" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content animated bounceInDown fast">
+            
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">New case</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <div class="loader" id="loader"></div>
+                <div id="content">
+                    <form id="form">
+                        <div class="form-group">
+                            <label for="first-name" class="col-form-label">First name:</label>
+                            <input type="text" name="" class="form-control" id="fisrt-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="last-name" class="col-form-label">Last name:</label>
+                            <input type="text" class="form-control" id="last-name">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="true">
+                                <label class="form-check-label" for="exampleRadios1">
+                                Male
+                                </label>
+                            </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="false">
+                            <label class="form-check-label" for="exampleRadios2">
+                            Female
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" name="" id="age" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <select class="custom-select">
+                        <option value="">Select the disease</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                        </select>
+                        <div class="invalid-feedback">Example invalid custom select feedback</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" name="" id="date" class="form-control">
+                    </div>
+                    <input type="text" name="lat" id="lat" hidden>
+                    <input type="text" name="lng" id="lng" hidden>
+                </form>
+            </div>
+            </div>
 
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="postCase()">Save case</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="modal" id="dashboardModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="dialog">
+            <div class="modal-content animated bounceInDown fast">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dashboard</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" >&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="myChart" width="100%" height="100"></canvas>
+                </div>
+            </div>
         </div>
     </div>
     <script>
@@ -220,38 +281,35 @@
     geocoder.on('result',getCoor);
     function getCoor(){
         document.getElementById("lat").value = geocoder.mapMarker._lngLat.lat;
-        document.getElementById("long").value = geocoder.mapMarker._lngLat.lng;
+        document.getElementById("lng").value = geocoder.mapMarker._lngLat.lng;
     }
     map.addControl(geocoder);
     </script>
-
     <script>
-        // Get the modal
-        var modalF = document.getElementById("formModal");
-        var modalD = document.getElementById("dashboardModal");
+        function postCase(){
+            document.getElementById("loader").style.display = "block";
+            document.getElementById("content").style.display = "none";
+            document.getElementById("form").submit();
 
-        // Get the button that opens the modal
-        var btnD = document.getElementById("dashboardButton");
-        var btnF = document.getElementById("formButton");
-
-        // When the user clicks on the button, open the modal
-        btnF.onclick = function() {
-            modalF.style.display = "block";
-        }
-        btnD.onclick = function(){
-            modalD.style.display = "block";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modalF) {
-                modalF.style.display = "none";
-            }
-            else if(event.target == modalD){
-                modalD.style.display = "none";
-            }
         }
     </script>
 
+    <script>
+        var ctx = document.getElementById('myChart');
+        var data = [{x:10,y:5}];
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+        </script>
 </body>
 </html>
