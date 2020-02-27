@@ -49,53 +49,56 @@
             </div>
             <div class="modal-body">
                 <div class="loader" id="loader"></div>
+                <div class="check" id="check">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                    <p style="text-align: center;">Case added sucessfully</p>
+                </div>
                 <div id="content">
                     <form id="form">
                         <div class="form-group">
                             <label for="first-name" class="col-form-label">First name:</label>
                             <input type="text" name="" class="form-control" id="fisrt-name">
-                        </div>
-                        <div class="form-group">
                             <label for="last-name" class="col-form-label">Last name:</label>
                             <input type="text" class="form-control" id="last-name">
                         </div>
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="true">
-                                <label class="form-check-label" for="exampleRadios1">
-                                Male
-                                </label>
+                        <div class="row">
+                            <div class="form-group col">
+                                <label class="form-check-label">Gender</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gender" id="maleRadio" value="true">
+                                    <label class="form-check-label" for="maleRadio">Male</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gender" id="femaleRadio" value="false">
+                                    <label class="form-check-label" for="femaleRadio">Female</label>
+                                </div>
                             </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="false">
-                            <label class="form-check-label" for="exampleRadios2">
-                            Female
-                            </label>
+                            <div class="form-group col">
+                                <label for="age">Age</label>
+                                <input type="number" name="" id="age" class="form-control">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="age">Age</label>
-                        <input type="number" name="" id="age" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <select class="custom-select">
-                        <option value="">Select the disease</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
-                        </select>
-                        <div class="invalid-feedback">Example invalid custom select feedback</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="date">Date</label>
-                        <input type="date" name="" id="date" class="form-control">
-                    </div>
-                    <input type="text" name="lat" id="lat" hidden>
-                    <input type="text" name="lng" id="lng" hidden>
-                </form>
+                        <div class="form-group">
+                            <select class="custom-select">
+                            <option value="">Select the disease</option>
+                            <option value="1">One</option>
+                            <option value="2">Two</option>
+                            <option value="3">Three</option>
+                            </select>
+                            <div class="invalid-feedback">Example invalid custom select feedback</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <input type="date" name="" id="date" class="form-control">
+                        </div>
+                        <input type="text" name="lat" id="lat" hidden>
+                        <input type="text" name="lng" id="lng" hidden>
+                    </form>
+                </div>
             </div>
-            </div>
-
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" onclick="postCase()">Save case</button>
@@ -124,7 +127,7 @@
         container: 'map', // container id
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [-96, 37.8], // starting position
-        zoom: 3 // starting zoom
+        zoom:3
     });
     // Add geolocate control to the map.
     map.addControl(
@@ -141,135 +144,126 @@
 // Add a geojson point source.
 // Heatmap layers also work with a vector tile source.
         map.addSource('earthquakes', {
-            'type': 'geojson',
-            'data':
-                'https://api.mapbox.com/datasets/v1/twozer00/ck64ic8b20m4u2itaoj4rmly9/features?access_token=pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRlN2JjMGppMDNvbzhrdzE2OWt0cCJ9.l0_1lx6-cBm3eb1fZXulbA'
+        type: 'geojson',
+        // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+        // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+        data:
+        'https://api.mapbox.com/datasets/v1/twozer00/ck64ic8b20m4u2itaoj4rmly9/features?access_token=pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRlN2JjMGppMDNvbzhrdzE2OWt0cCJ9.l0_1lx6-cBm3eb1fZXulbA',
+        cluster: true,
+        clusterMaxZoom: 14, // Max zoom to cluster points on
+        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
         });
 
-        map.addLayer(
-            {
-                'id': 'earthquakes-heat',
-                'type': 'heatmap',
-                'source': 'earthquakes',
-                'maxzoom': 9,
-                'paint': {
-// Increase the heatmap weight based on frequency and property magnitude
-                    'heatmap-weight': [
-                        'interpolate',
-                        ['linear'],
-                        ['get', 'mag'],
-                        0,
-                        0,
-                        6,
-                        1
-                    ],
-// Increase the heatmap color weight weight by zoom level
-// heatmap-intensity is a multiplier on top of heatmap-weight
-                    'heatmap-intensity': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        0,
-                        1,
-                        9,
-                        3
-                    ],
-// Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
-// Begin color ramp at 0-stop with a 0-transparancy color
-// to create a blur-like effect.
-                    'heatmap-color': [
-                        'interpolate',
-                        ['linear'],
-                        ['heatmap-density'],
-                        0,
-                        'rgba(33,102,172,0)',
-                        0.2,
-                        'rgb(103,169,207)',
-                        0.4,
-                        'rgb(209,229,240)',
-                        0.6,
-                        'rgb(253,219,199)',
-                        0.8,
-                        'rgb(239,138,98)',
-                        1,
-                        'rgb(178,24,43)'
-                    ],
-// Adjust the heatmap radius by zoom level
-                    'heatmap-radius': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        0,
-                        2,
-                        9,
-                        20
-                    ],
-// Transition from heatmap to circle layer by zoom level
-                    'heatmap-opacity': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        7,
-                        1,
-                        9,
-                        0
-                    ]
-                }
-            },
-            'waterway-label'
-        );
-
-        map.addLayer(
-            {
-                'id': 'earthquakes-point',
-                'type': 'circle',
-                'source': 'earthquakes',
-                'minzoom': 7,
-                'paint': {
-// Size circle radius by earthquake magnitude and zoom level
-                    'circle-radius': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        7,
-                        ['interpolate', ['linear'], ['get', 'mag'], 1, 1, 6, 4],
-                        16,
-                        ['interpolate', ['linear'], ['get', 'mag'], 1, 5, 6, 50]
-                    ],
-// Color circle by earthquake magnitude
-                    'circle-color': [
-                        'interpolate',
-                        ['linear'],
-                        ['get', 'mag'],
-                        1,
-                        'rgba(33,102,172,0)',
-                        2,
-                        'rgb(103,169,207)',
-                        3,
-                        'rgb(209,229,240)',
-                        4,
-                        'rgb(253,219,199)',
-                        5,
-                        'rgb(239,138,98)',
-                        6,
-                        'rgb(178,24,43)'
-                    ],
-                    'circle-stroke-color': 'white',
-                    'circle-stroke-width': 1,
-// Transition from heatmap to circle layer by zoom level
-                    'circle-opacity': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        7,
-                        0,
-                        8,
-                        1
-                    ]
-                }
-            },
-            'waterway-label'
-        );
+        map.addLayer({
+            id: 'clusters',
+            type: 'circle',
+            source: 'earthquakes',
+            filter: ['has', 'point_count'],
+            paint: {
+            // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+            // with three steps to implement three types of circles:
+            //   * Blue, 20px circles when point count is less than 100
+            //   * Yellow, 30px circles when point count is between 100 and 750
+            //   * Pink, 40px circles when point count is greater than or equal to 750
+            'circle-color': [
+            'step',
+            ['get', 'point_count'],
+            '#feda47',
+            100,
+            '#ff7800',
+            750,
+            '#ff0000'
+            ],
+            'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            20,
+            100,
+            30,
+            750,
+            40
+            ]
+            }
+            });
+            
+            map.addLayer({
+            id: 'cluster-count',
+            type: 'symbol',
+            source: 'earthquakes',
+            filter: ['has', 'point_count'],
+            layout: {
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+            }
+            });
+            
+            map.addLayer({
+            id: 'unclustered-point',
+            type: 'circle',
+            source: 'earthquakes',
+            filter: ['!', ['has', 'point_count']],
+            paint: {
+            'circle-color': '#ff0000',
+            'circle-radius': 4,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+            }
+            });
+            // inspect a cluster on click
+            map.on('click', 'clusters', function(e) {
+            var features = map.queryRenderedFeatures(e.point, {
+            layers: ['clusters']
+            });
+            var clusterId = features[0].properties.cluster_id;
+            map.getSource('earthquakes').getClusterExpansionZoom(
+            clusterId,
+            function(err, zoom) {
+            if (err) return;
+            
+            map.easeTo({
+            center: features[0].geometry.coordinates,
+            zoom: zoom
+            });
+            }
+            );
+            });
+            
+            // When a click event occurs on a feature in
+            // the unclustered-point layer, open a popup at
+            // the location of the feature, with
+            // description HTML from its properties.
+            map.on('click', 'unclustered-point', function(e) {
+            
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var mag = e.features[0].properties.mag;
+            var tsunami;
+            
+            if (e.features[0].properties.tsunami === 1) {
+            tsunami = 'yes'
+            } else {
+            tsunami = 'no'
+            }
+            
+            // Ensure that if the map is zoomed out such that
+            // multiple copies of the feature are visible, the
+            // popup appears over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+            
+            new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML("magnitude: " + mag + "<br>Was there a tsunami?: " + tsunami)
+            .addTo(map);
+            });
+            
+            map.on('mouseenter', 'clusters', function() {
+            map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', 'clusters', function() {
+            map.getCanvas().style.cursor = '';
+            });
     });
     var geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
@@ -289,26 +283,39 @@
         function postCase(){
             document.getElementById("loader").style.display = "block";
             document.getElementById("content").style.display = "none";
-            document.getElementById("form").submit();
-
+            setTimeout(function(){
+                
+                document.getElementById("form").reset();
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("check").style.display = "block";
+                setTimeout(function(){
+                    document.getElementById("content").style.display = "block";
+                    document.getElementById("check").style.display = "none";
+                },2000);
+            },2600);
         }
     </script>
 
     <script>
         var ctx = document.getElementById('myChart');
-        var data = [{x:10,y:5}];
-        var myChart = new Chart(ctx, {
+        var data = [10,20,30,40,50];
+        var myLineChart = new Chart(ctx, {
             type: 'line',
-            data: data,
+            data: {
+                datasets: [{
+                    data: [10, 20, 30, 40, 50, 60]
+                }],
+                labels: ['January', 'February', 'March', 'April', 'May', 'June']
+            },
             options: {
                 scales: {
-                    yAxes: [{
+                    xAxes: [{
                         ticks: {
-                            beginAtZero: true
+                            min: 'March'
                         }
                     }]
                 }
-            }
+            }   
         });
         </script>
 </body>
