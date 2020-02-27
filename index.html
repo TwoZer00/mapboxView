@@ -13,11 +13,19 @@
       crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script
+			  src="https://code.jquery.com/jquery-3.4.1.js"
+			  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+			  crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/animate.css" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js" ></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.12/js/bootstrap-select.min.js"></script>
 </head>
 <body>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js"></script>
@@ -35,6 +43,9 @@
             <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#dashboardModal">Dashboard</button>
             <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#formModal">Add new case</button>
         </div>
+    </div>
+    <div class="row">
+        <input type="text" id="showDisease" class="form-control col"> <button class="btn btn-dark col" id="viewDisease">view</button>
     </div>
     <div id='map'></div>
     <div class="modal" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -57,12 +68,12 @@
                     <p style="text-align: center;">Case added sucessfully</p>
                 </div>
                 <div id="content">
-                    <form id="form">
+                    <form id="form" method="POST">
                         <div class="form-group">
                             <label for="first-name" class="col-form-label">First name:</label>
-                            <input type="text" name="" class="form-control" id="fisrt-name">
+                            <input type="text" name="firstName" class="form-control" id="fisrt-name">
                             <label for="last-name" class="col-form-label">Last name:</label>
-                            <input type="text" class="form-control" id="last-name">
+                            <input type="text" class="form-control" id="last-name" name="lastName">
                         </div>
                         <div class="row">
                             <div class="form-group col">
@@ -78,21 +89,18 @@
                             </div>
                             <div class="form-group col">
                                 <label for="age">Age</label>
-                                <input type="number" name="" id="age" class="form-control">
+                                <input type="number" name="age" id="age" class="form-control">
                             </div>
                         </div>
                         <div class="form-group">
-                            <select class="custom-select">
-                            <option value="">Select the disease</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
+                            <select class="selectpicker" name="disease" id="selectDisease" data-live-search="true"  data-width="100%">
+                                <option value="">Select the disease</option>
                             </select>
                             <div class="invalid-feedback">Example invalid custom select feedback</div>
                         </div>
                         <div class="form-group">
                             <label for="date">Date</label>
-                            <input type="date" name="" id="date" class="form-control">
+                            <input type="date" name="date" id="date" class="form-control">
                         </div>
                         <input type="text" name="lat" id="lat" hidden>
                         <input type="text" name="lng" id="lng" hidden>
@@ -139,16 +147,30 @@
             showUserLocation:true
         })
     );
+    document.getElementById("viewDisease").onclick = function(){
+        map.addSource('disease',{
+            type: 'geojson',
+            // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+            // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+            data:
+            'http://54.211.232.101:8080/api/' + dataset ,
+            cluster: true,
+            clusterMaxZoom: 14, // Max zoom to cluster points on
+            clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+        });
+    }
+
 
     map.on('load', function() {
 // Add a geojson point source.
 // Heatmap layers also work with a vector tile source.
-        map.addSource('earthquakes', {
+        var dataset = document.getElementById("showDisease").value;
+        map.addSource('diseases', {
         type: 'geojson',
         // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
         // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
         data:
-        'https://api.mapbox.com/datasets/v1/twozer00/ck64ic8b20m4u2itaoj4rmly9/features?access_token=pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRlN2JjMGppMDNvbzhrdzE2OWt0cCJ9.l0_1lx6-cBm3eb1fZXulbA',
+        'http://54.211.232.101:8080/api/COVID_19' ,
         cluster: true,
         clusterMaxZoom: 14, // Max zoom to cluster points on
         clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
@@ -157,7 +179,7 @@
         map.addLayer({
             id: 'clusters',
             type: 'circle',
-            source: 'earthquakes',
+            source: 'diseases',
             filter: ['has', 'point_count'],
             paint: {
             // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
@@ -189,7 +211,7 @@
             map.addLayer({
             id: 'cluster-count',
             type: 'symbol',
-            source: 'earthquakes',
+            source: 'diseases',
             filter: ['has', 'point_count'],
             layout: {
             'text-field': '{point_count_abbreviated}',
@@ -201,7 +223,7 @@
             map.addLayer({
             id: 'unclustered-point',
             type: 'circle',
-            source: 'earthquakes',
+            source: 'diseases',
             filter: ['!', ['has', 'point_count']],
             paint: {
             'circle-color': '#ff0000',
@@ -216,7 +238,7 @@
             layers: ['clusters']
             });
             var clusterId = features[0].properties.cluster_id;
-            map.getSource('earthquakes').getClusterExpansionZoom(
+            map.getSource('diseases').getClusterExpansionZoom(
             clusterId,
             function(err, zoom) {
             if (err) return;
@@ -280,19 +302,37 @@
     map.addControl(geocoder);
     </script>
     <script>
+        loadDiseases();
+        function loadDiseases(){
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    alert(this.responseText);
+                    var responseJson = JSON.parse(this.responseText);
+                    for(var i=0;i<responseJson.length;i++){
+                        var option = document.createElement("option");
+                        option.text = responseJson[i];
+                        option.value = responseJson[i]; 
+                        document.getElementById("selectDisease").add(option); 
+                    }
+                }
+            };
+            xhttp.open("GET", "http://54.211.232.101:8080/api/", true);
+            xhttp.send();
+        }
         function postCase(){
-            document.getElementById("loader").style.display = "block";
-            document.getElementById("content").style.display = "none";
-            setTimeout(function(){
-                
-                document.getElementById("form").reset();
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("check").style.display = "block";
-                setTimeout(function(){
-                    document.getElementById("content").style.display = "block";
-                    document.getElementById("check").style.display = "none";
-                },2000);
-            },2600);
+            var form = document.getElementById("form");
+            var formData = new FormData(form);
+            var object = {};
+            formData.forEach((value, key) => {object[key] = value});
+            var json = JSON.stringify(object);
+
+            var request = new XMLHttpRequest();
+            request.open("POST", "http://54.211.232.101:8080/case", false );
+            //var formData = new FormData(form);
+            request.setRequestHeader('Content-type', 'application/json');
+            request.send(json);
+            console.log(request.status);
         }
     </script>
 
