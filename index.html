@@ -47,7 +47,7 @@
             <div class="invalid-feedback">Example invalid custom select feedback</div>
         </div>
     </div>
-    <div id='map'></div>
+    <!--<div id='map'></div>-->
     <div class="modal" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content animated bounceInDown fast">
@@ -112,9 +112,6 @@
                             </div>
                             
                         </div>
-                        <div class="form-group">
-                            
-                        </div>
                         <input type="text" name="latitude" id="lat" hidden>
                         <input type="text" name="longitude" id="lng" hidden>
                     </form>
@@ -137,6 +134,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <select class="selectpicker" name="disease" id="diseasesDashboard" data-live-search="true" onchange="graph(this.value)" data-width="100%">
+                        <option value="">Select the disease</option>
+                    </select>
+                    <div class="invalid-feedback">Example invalid custom select feedback</div>
                     <canvas id="myChart" width="100%" height="100"></canvas>
                 </div>
             </div>
@@ -151,29 +152,53 @@
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     loadSelects(this);
+                    $('.selectpicker').selectpicker('refresh');
                 }
             };
-            xhttp.open("GET", "http://54.211.232.101:8080/api/", false);
+            xhttp.open("GET", "http://54.211.232.101:8080/api/diseases/", true);
             xhttp.send();
         }
         function loadSelects(json){
             responseJson = JSON.parse(json.responseText);
             JsonToSelect(responseJson,document.getElementById("diseasesMenu"),true);
             JsonToSelect(responseJson,document.getElementById("diseasesForm"));
+            JsonToSelect(responseJson,document.getElementById("diseasesDashboard"));
         }
         function JsonToSelect(json,select,random){
             var selected = Math.floor((Math.random() * json.length));
-            for(var i=0;i<json.length;i++){
-                var option = document.createElement("option");
-                option.text = json[i];
-                option.value = json[i];
-                if(selected == i && random){
-                    option.selected = "selected"
+            if (random!=undefined){
+                for(var i=0;i<json.length; i++){
+                    var option = document.createElement("option");
+                    option.text = json[i];
+                    option.value = json[i];
+                    if(selected === i){
+                        option.selected = "selected";
+                    }
+                    select.options.add(option);
                 }
-                select.options.add(option);
-                
             }
-            console.log(json);
+            else{
+                var diseases = ["HIV","CHOLERA(HISPANIOLA)","CHOLERA(YEMEN)","EBOLA","HFMD","MEASLES(CONGO)","MEASLES(SAMOA)","MERS"];
+                var optGroupJson = document.createElement("optgroup");
+                optGroupJson.setAttribute("label","Registered");
+                var optGroupText = document.createElement("optgroup");
+                optGroupText.setAttribute("label", "No registered");
+                select.appendChild(optGroupJson);
+                select.appendChild(optGroupText);
+                for(var i=0;i<json.length;i++){
+                    var option = document.createElement("option");
+                    option.text = json[i];
+                    option.value = json[i];
+                    optGroupJson.appendChild(option);
+                }
+                for(var i=0;i<diseases.length;i++){
+                    var option = document.createElement("option");
+                    option.text = diseases[i];
+                    option.value = diseases[i];
+                    optGroupText.appendChild(option);
+                    console.log(diseases[i]);
+                }
+            }
         }
 
     </script>
@@ -207,29 +232,29 @@
             source: 'diseases',
             filter: ['has', 'point_count'],
             paint: {
-            // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
-            // with three steps to implement three types of circles:
-            //   * Blue, 20px circles when point count is less than 100
-            //   * Yellow, 30px circles when point count is between 100 and 750
-            //   * Pink, 40px circles when point count is greater than or equal to 750
-            'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#feda47',
-            100,
-            '#ff7800',
-            750,
-            '#ff0000'
-            ],
-            'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            20,
-            100,
-            30,
-            750,
-            40
-            ]
+                // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+                // with three steps to implement three types of circles:
+                //   * Blue, 20px circles when point count is less than 100
+                //   * Yellow, 30px circles when point count is between 100 and 750
+                //   * Pink, 40px circles when point count is greater than or equal to 750
+                'circle-color': [
+                    'step',
+                    ['get', 'point_count'],
+                    '#feda47',
+                    100,
+                    '#ff7800',
+                    750,
+                    '#ff0000'
+                    ],
+                    'circle-radius': [
+                    'step',
+                    ['get', 'point_count'],
+                    20,
+                    100,
+                    30,
+                    750,
+                    40
+                    ]
             }
             });
             
@@ -379,26 +404,92 @@
         }
     </script>
     <script>
+        function graph(disease){
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    createGraph(this);
+                }
+            };
+            xhttp.open("GET", "http://54.211.232.101:8080/forecast?disease="+disease, true);
+            xhttp.send();
+        }
+        function createGraph(request){
+            var json = JSON.parse(request.responseText);
+            alert(JSON.stringify(json));
+            var fcDate, fcCase, dbDate, dbCase;
+            for (var key in json) {
+                if(key==="fcDate"){
+                    fcDate = json[key];
+                }
+                if(key==="fcCase"){
+                    fcCase = json[key];
+                }
+                if(key===dbDate){
+                    dbDate = json[key];
+
+                }
+                if(key===dbCase){
+                    dbCase = json[key];
+
+                }
+        }
+            console.log(fcDate + " " + fcCase + " " + dbCase + " " + dbDate);
+        }
+    /*var newObj = {
+            disease:"ebola",
+            date:"2020-03-04",
+            forecast:{
+                dates:["2020-03-04"],
+                cases:[200]
+            },
+            dataset:{
+                dates:["2020-03-04"],
+                cases:[300]
+
+            }
+        };
+
+        var labels=[];
+        var labels1=[];
+        var data = [];
+        var data1 = [];
+        for (var key in newObj) {
+            if(key==="forecast"){
+                data = newObj[key].cases;
+                labels = newObj[key].dates;
+            }
+            if(key==="dataset"){
+                data1 = newObj[key].cases;
+                labels1 = newObj[key].dates;
+            }
+        }
         var ctx = document.getElementById('myChart');
-        var data = [10,20,30,40,50];
+        var data = data;
         var myLineChart = new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: [{
-                    data: [10, 20, 30, 40, 50, 60]
+                    data: data,
+                    fill:false,
+                    pointStyle:false,
+                    label:"forecast"
+                },{
+                    data: data1,
+                    fill:false,
+                    pointStyle:false,
+                    label:"dataset"
                 }],
-                labels: ['January', 'February', 'March', 'April', 'May', 'June']
+                labels: labels,
             },
             options: {
                 scales: {
-                    xAxes: [{
-                        ticks: {
-                            min: 'March'
-                        }
+                    yAxes: [{
+                        stacked: true
                     }]
                 }
             }   
-        });
+        });*/
     </script>
     <script>
         function loadDiseases1 (select){
