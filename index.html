@@ -42,10 +42,10 @@
             <button type="button" class="btn btn-dark">Home</button>
             <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#dashboardModal">Dashboard</button>
             <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#formModal">Add new case</button>
+            <select name="disease" id="diseasesMenu" onchange="loadDiseases1(this.value)" class="selectpicker">
+            </select>
+            <div class="invalid-feedback">Example invalid custom select feedback</div>
         </div>
-    </div>
-    <div class="row">
-        <input type="text" id="showDisease" class="form-control col"> <button class="btn btn-dark col" id="viewDisease">view</button>
     </div>
     <div id='map'></div>
     <div class="modal" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -59,6 +59,9 @@
             </button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-danger fade show" role="alert" id="alert" style="display: none;">
+                    You need fill all the field
+                </div>
                 <div class="loader" id="loader"></div>
                 <div class="check" id="check">
                     <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
@@ -93,17 +96,27 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <select class="selectpicker" name="disease" id="selectDisease" data-live-search="true"  data-width="100%">
+                            <select class="selectpicker" name="disease" id="diseasesForm" data-live-search="true"  data-width="100%">
                                 <option value="">Select the disease</option>
                             </select>
                             <div class="invalid-feedback">Example invalid custom select feedback</div>
                         </div>
-                        <div class="form-group">
-                            <label for="date">Date</label>
+                        <div class="form-group row">
+                            <div class="col">
+                                <label for="date">Date</label>
                             <input type="date" name="date" id="date" class="form-control">
+                            </div>
+                            <div class="col">
+                                <label for="geocoder">Adress</label>
+                                <div id="geocoder" class="geocoder"></div>
+                            </div>
+                            
                         </div>
-                        <input type="text" name="lat" id="lat" hidden>
-                        <input type="text" name="lng" id="lng" hidden>
+                        <div class="form-group">
+                            
+                        </div>
+                        <input type="text" name="latitude" id="lat" hidden>
+                        <input type="text" name="longitude" id="lng" hidden>
                     </form>
                 </div>
             </div>
@@ -130,6 +143,41 @@
         </div>
     </div>
     <script>
+        loadDiseases();
+        function loadDiseases(){
+            var xhttp = new XMLHttpRequest();
+            var responseJson;
+            
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    loadSelects(this);
+                }
+            };
+            xhttp.open("GET", "http://54.211.232.101:8080/api/", false);
+            xhttp.send();
+        }
+        function loadSelects(json){
+            responseJson = JSON.parse(json.responseText);
+            JsonToSelect(responseJson,document.getElementById("diseasesMenu"),true);
+            JsonToSelect(responseJson,document.getElementById("diseasesForm"));
+        }
+        function JsonToSelect(json,select,random){
+            var selected = Math.floor((Math.random() * json.length));
+            for(var i=0;i<json.length;i++){
+                var option = document.createElement("option");
+                option.text = json[i];
+                option.value = json[i];
+                if(selected == i && random){
+                    option.selected = "selected"
+                }
+                select.options.add(option);
+                
+            }
+            console.log(json);
+        }
+
+    </script>
+    <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRoamZ4MGphczNrcXA1NWw4dzN5MyJ9.-KxY1BPMApriPjGoMevTWg';
     var map = new mapboxgl.Map({
         container: 'map', // container id
@@ -137,43 +185,20 @@
         center: [-96, 37.8], // starting position
         zoom:3
     });
-    // Add geolocate control to the map.
-    map.addControl(
-        new mapboxgl.GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            trackUserLocation: true,
-            showUserLocation:true
-        })
-    );
-    document.getElementById("viewDisease").onclick = function(){
-        map.addSource('disease',{
-            type: 'geojson',
-            // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
-            // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
-            data:
-            'http://54.211.232.101:8080/api/' + dataset ,
-            cluster: true,
-            clusterMaxZoom: 14, // Max zoom to cluster points on
-            clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
-        });
-    }
-
-
+    
     map.on('load', function() {
 // Add a geojson point source.
 // Heatmap layers also work with a vector tile source.
-        var dataset = document.getElementById("showDisease").value;
+        var selected = document.getElementById("diseasesMenu").value;
         map.addSource('diseases', {
         type: 'geojson',
         // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
         // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
         data:
-        'http://54.211.232.101:8080/api/COVID_19' ,
+        'http://54.211.232.101:8080/api/' + selected  ,
         cluster: true,
         clusterMaxZoom: 14, // Max zoom to cluster points on
-        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+        clusterRadius: 30 // Radius of each cluster when clustering points (defaults to 50)
         });
 
         map.addLayer({
@@ -287,55 +312,72 @@
             map.getCanvas().style.cursor = '';
             });
     });
+    
+    
     var geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
-        marker: {
-            color: 'red'
+        Marker:{
+            color:"black",
+            draggable:true
         },
         mapboxgl: mapboxgl
     });
     geocoder.on('result',getCoor);
+    
     function getCoor(){
         document.getElementById("lat").value = geocoder.mapMarker._lngLat.lat;
         document.getElementById("lng").value = geocoder.mapMarker._lngLat.lng;
     }
-    map.addControl(geocoder);
+    document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
     </script>
     <script>
-        loadDiseases();
-        function loadDiseases(){
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    alert(this.responseText);
-                    var responseJson = JSON.parse(this.responseText);
-                    for(var i=0;i<responseJson.length;i++){
-                        var option = document.createElement("option");
-                        option.text = responseJson[i];
-                        option.value = responseJson[i]; 
-                        document.getElementById("selectDisease").add(option); 
-                    }
-                }
-            };
-            xhttp.open("GET", "http://54.211.232.101:8080/api/", true);
-            xhttp.send();
-        }
         function postCase(){
             var form = document.getElementById("form");
             var formData = new FormData(form);
             var object = {};
             formData.forEach((value, key) => {object[key] = value});
-            var json = JSON.stringify(object);
-
-            var request = new XMLHttpRequest();
-            request.open("POST", "http://54.211.232.101:8080/case", false );
-            //var formData = new FormData(form);
-            request.setRequestHeader('Content-type', 'application/json');
-            request.send(json);
-            console.log(request.status);
+            var validator=true;
+            for (var key in object) {
+                if (object.hasOwnProperty(key)) {
+                    var val = object[key];
+                    if(key==="latitude" && val===""){
+                        validator=false;
+                    }
+                    if(key==="disease" && val ===""){
+                        validator=false;
+                    }
+                }
+            }
+            if(validator){
+                document.getElementById("loader").style.display = "block";
+                document.getElementById("content").style.display = "none";
+                var json = JSON.stringify(object);
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 201) {
+                        document.getElementById("form").reset();
+                        document.getElementById("loader").style.display = "none";
+                        document.getElementById("check").style.display = "block";
+                        setTimeout(function(){
+                            document.getElementById("content").style.display = "block";
+                            document.getElementById("check").style.display = "none";
+                            $('#formModal').modal('hide');
+                            geocoder._removeMarker();
+                        },1500);
+                    }
+                };
+                xhttp.open("POST", "http://54.211.232.101:8080/case", true);
+                xhttp.setRequestHeader('Content-type', 'application/json');
+                xhttp.send(json);
+            }
+            else{
+                document.getElementById("alert").style.display = "block";
+                setTimeout(function(){
+                    $("#alert").alert('close');
+                },3000);
+            }
         }
     </script>
-
     <script>
         var ctx = document.getElementById('myChart');
         var data = [10,20,30,40,50];
@@ -357,6 +399,11 @@
                 }
             }   
         });
-        </script>
+    </script>
+    <script>
+        function loadDiseases1 (select){
+            map.getSource("diseases").setData("http://54.211.232.101:8080/api/" + select);
+        }
+    </script>
 </body>
 </html>
