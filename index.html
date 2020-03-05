@@ -29,11 +29,7 @@
 </head>
 <body>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js"></script>
-    <link
-            rel="stylesheet"
-            href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css"
-            type="text/css"
-    />
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css" type="text/css" />
     <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
@@ -416,25 +412,62 @@
         }
         function createGraph(request){
             var json = JSON.parse(request.responseText);
-            alert(JSON.stringify(json));
-            var fcDate, fcCase, dbDate, dbCase;
+            json = json._embedded.forecast[0];
+            console.log(JSON.stringify(json[0]));
+            var fcDate = [];
+            var fcCase= [];
+            var dbDate= [];
+            var dbCase= [];
             for (var key in json) {
-                if(key==="fcDate"){
+                //console.log(typeof(key) + " " + key);
+                if(key==="fcDates"){
                     fcDate = json[key];
                 }
-                if(key==="fcCase"){
+                if(key==="fcCases"){
                     fcCase = json[key];
                 }
-                if(key===dbDate){
+                if(key==="dbDates"){
                     dbDate = json[key];
 
                 }
-                if(key===dbCase){
+                if(key==="dbCases"){
                     dbCase = json[key];
 
                 }
-        }
-            console.log(fcDate + " " + fcCase + " " + dbCase + " " + dbDate);
+            }
+            dbDate.reverse();   
+            console.log("----"+fcDate.length + "\n" + fcCase.length + "\n" + dbCase.length + "\n" + dbDate.length);
+            var ctx = document.getElementById('myChart');
+            var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    data: fcCase,
+                    fill:false,
+                    pointStyle:false,
+                    label:"forecast",
+                    pointRadius:0,
+                    borderColor:'rgba(255,0,0,0.5)'
+                },{
+                    data: dbCase,
+                    fill:false,
+                    pointStyle:false,
+                    label:"dataset",
+                    showLine:false,
+                    pointBackgroundColor:'rgba(0, 0, 0, 1)'
+                }
+                
+                ],
+                labels: dbDate,
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
+            }   
+        });
         }
     /*var newObj = {
             disease:"ebola",
