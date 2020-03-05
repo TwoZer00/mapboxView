@@ -12,18 +12,15 @@
       integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" 
       crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script
-			  src="https://code.jquery.com/jquery-3.4.1.js"
-			  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
-			  crossorigin="anonymous"></script>
+    <script src="js/Date.format.min.js" ></script>
+    <script src="js/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.css">
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="js/bootstrap/bootstrap.js"></script>
     <link rel="stylesheet" href="css/animate.css" type="text/css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js" integrity="sha256-8zyeSXm+yTvzUN1VgAOinFgaVFEFTyYzWShOy9w7WoQ=" crossorigin="anonymous"></script>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
-
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.12/js/bootstrap-select.min.js"></script>
 </head>
@@ -43,7 +40,7 @@
             <div class="invalid-feedback">Example invalid custom select feedback</div>
         </div>
     </div>
-    <!--<div id='map'></div>-->
+    <div id='map'></div>
     <div class="modal" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content animated bounceInDown fast">
@@ -130,9 +127,14 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <select class="selectpicker" name="disease" id="diseasesDashboard" data-live-search="true" onchange="graph(this.value)" data-width="100%">
-                        <option value="">Select the disease</option>
-                    </select>
+                    <div class="form-group row">
+                        <select class="selectpicker col" name="disease" id="diseasesDashboard" data-live-search="true" data-width="100%">
+                            <option value="">Select the disease</option>
+                        </select>
+                        <div class="col">
+                            <input type="date" class="form-control" id="datePicker">
+                        </div>
+                    </div>
                     <div class="invalid-feedback">Example invalid custom select feedback</div>
                     <canvas id="myChart" width="100%" height="100"></canvas>
                 </div>
@@ -141,6 +143,8 @@
     </div>
     <script>
         loadDiseases();
+        var datepicker = document.getElementById("datePicker");
+        datepicker.setAttribute("max",new Date().format('Y-m-d'));
         function loadDiseases(){
             var xhttp = new XMLHttpRequest();
             var responseJson;
@@ -158,7 +162,7 @@
             responseJson = JSON.parse(json.responseText);
             JsonToSelect(responseJson,document.getElementById("diseasesMenu"),true);
             JsonToSelect(responseJson,document.getElementById("diseasesForm"));
-            JsonToSelect(responseJson,document.getElementById("diseasesDashboard"));
+            JsonToSelect(responseJson,document.getElementById("diseasesDashboard"),true);
         }
         function JsonToSelect(json,select,random){
             var selected = Math.floor((Math.random() * json.length));
@@ -216,7 +220,7 @@
         // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
         // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
         data:
-        'http://54.211.232.101:8080/api/' + selected  ,
+        'http://54.211.232.101:8080/api/diseases/' + selected  ,
         cluster: true,
         clusterMaxZoom: 14, // Max zoom to cluster points on
         clusterRadius: 30 // Radius of each cluster when clustering points (defaults to 50)
@@ -400,6 +404,108 @@
         }
     </script>
     <script>
+        var json = {"disease": "COVID_19", "date": "2020-03-05", "forecast": [[1911.5736842155457, "2020-01-29"], [2138.894736856222, "2020-01-30"], [2366.2157894670963, "2020-01-31"], [2593.536842107773, "2020-02-01"], [2820.8578947484493, "2020-02-02"], [3048.1789473593235, "2020-02-03"], [3275.5, "2020-02-04"], [3502.8210526406765, "2020-02-05"], [3730.1421052515507, "2020-02-06"], [3957.463157892227, "2020-02-07"], [4184.784210532904, "2020-02-08"], [4412.10526317358, "2020-02-09"], [4639.426315784454, "2020-02-10"], [4866.747368425131, "2020-02-11"], [5094.068421065807, "2020-02-12"], [5321.3894736766815, "2020-02-13"], [5548.710526317358, "2020-02-14"], [5776.0315789580345, "2020-02-15"], [6003.352631568909, "2020-02-16"], [6230.673684209585, "2020-02-17"], [6457.994736850262, "2020-02-18"], [6685.315789461136, "2020-02-19"], [6912.636842101812, "2020-02-20"], [7139.957894742489, "2020-02-21"], [7367.278947383165, "2020-02-22"], [7594.5999999940395, "2020-02-23"], [7821.921052634716, "2020-02-24"], [8049.2421052753925, "2020-02-25"], [8276.563157886267, "2020-02-26"], [8503.884210526943, "2020-02-27"], [8731.20526316762, "2020-02-28"], [8958.526315778494, "2020-02-29"], [9185.84736841917, "2020-03-01"], [9413.168421059847, "2020-03-02"], [9640.489473700523, "2020-03-03"], [9867.810526311398, "2020-03-04"], [10095.131578952074, "2020-03-05"], [10322.45263159275, "2020-03-06"], [10549.773684203625, "2020-03-07"], [10777.094736844301, "2020-03-08"], [11004.415789484978, "2020-03-09"], [11231.736842095852, "2020-03-10"], [11459.057894736528, "2020-03-11"], [11686.378947377205, "2020-03-12"], [11913.699999988079, "2020-03-13"], [12141.021052628756, "2020-03-14"], [12368.342105269432, "2020-03-15"], [12595.663157910109, "2020-03-16"], [12822.984210520983, "2020-03-17"], [13050.30526316166, "2020-03-18"], [13277.626315802336, "2020-03-19"], [13504.94736841321, "2020-03-20"], [13732.268421053886, "2020-03-21"], [13959.589473694563, "2020-03-22"], [14186.910526305437, "2020-03-23"], [14414.231578946114, "2020-03-24"], [14641.55263158679, "2020-03-25"], [14868.873684227467, "2020-03-26"], [15096.19473683834, "2020-03-27"], [15323.515789479017, "2020-03-28"], [15550.836842119694, "2020-03-29"], [15778.157894730568, "2020-03-30"], [16005.478947371244, "2020-03-31"], [16232.800000011921, "2020-04-01"], [16460.121052622795, "2020-04-02"], [16687.44210526347, "2020-04-03"], [16914.763157904148, "2020-04-04"]], "data": [[1725, "2020-01-29"], [1679, "2020-01-27"], [1073, "2020-01-25"], [1584, "2020-01-28"], [780, "2020-01-26"], [452, "2020-01-30"], [287, "2020-01-24"], [3771, "2020-02-04"], [402, "2020-01-21"], [79, "2020-02-05"], [225, "2020-01-22"], [2987, "2020-02-08"], [99, "2020-01-23"], [1693, "2020-01-31"], [2904, "2020-02-02"], [7367, "2020-02-01"], [4305, "2020-02-03"], [6566, "2020-02-06"], [2661, "2020-02-07"]]};
+        //json = JSON.parse(json);
+        var forecast = json.forecast;
+        var dataset = json.data;
+        var labels = [];
+        var data = [];
+        var labels1 = [];
+        var data1 = [];
+        //var labbels = arrayUnique(labels.concat(labels1));
+        var newData1=[];
+        for (var key in forecast) {
+            var newObj = forecast[key];
+            //data.push(newObj[0]);
+            //labels.push(newObj[1]);
+            var jsonObj = {x: new Date(newObj[1]), y: newObj[0]};
+            newData1.push(jsonObj);
+        }
+
+        console.log(newData1[0].x);
+        var newData=[];
+        for(var key in dataset){
+            var newObj = dataset[key];
+            //data1.push(newObj[0]);
+            //labels1.push(newObj[1]);
+            console.log(typeof(newObj[1]));
+            var jsonObj = {x: new Date(newObj[1]), y: newObj[0]};
+            newData.push(jsonObj);
+        }
+        console.log(newData[0].x + " " + newData1[0].x);
+        var ctx = document.getElementById('myChart');
+        var scatterChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Scatter Dataset',
+                    pointBackgroundColor:'rgba(0, 0, 0, 1)',
+                    data: newData,
+                    order:2
+                },{
+                    label:'forecast',
+                    type:'line',
+                    data: newData1,
+                    pointRadius:0,
+                    fill:false,
+                    borderColor:'rgba(255,0,0,0.5)',
+                    order:1
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        id: 'first-y-axis',
+                        type: 'time',
+                        time: {
+                            unit: 'month'
+                        },
+                        bounds:'data'
+                    }]
+                }
+            }
+        });
+        /*var ctx = document.getElementById('myChart');
+            var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [/*{
+                    data: data,
+                    fill:false,
+                    pointStyle:false,
+                    label:"forecast",
+                    pointRadius:0,
+                    borderColor:'rgba(255,0,0,0.5)',
+                    labels:labels/*,
+                    trendlineLinear: {
+                                    style: "#3e95cd",
+                                    lineStyle: "line",
+                                    width: 1
+                                }
+                },{
+                    data: newData,
+                    fill:false,
+                    pointStyle:false,
+                    label:"dataset",
+                    showLine:false,
+                    pointBackgroundColor:'rgba(0, 0, 0, 1)',
+                    labels: labels1,
+                    type:'scatter'
+                }
+                
+                ],
+                labels:labels
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
+            }   
+        });*/
+        
+        /*
         function graph(disease){
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function() {
@@ -447,18 +553,19 @@
                     pointStyle:false,
                     label:"forecast",
                     pointRadius:0,
-                    borderColor:'rgba(255,0,0,0.5)'
+                    borderColor:'rgba(255,0,0,0.5)',
+                    labels:fcDate
                 },{
                     data: dbCase,
                     fill:false,
                     pointStyle:false,
                     label:"dataset",
                     showLine:false,
-                    pointBackgroundColor:'rgba(0, 0, 0, 1)'
+                    pointBackgroundColor:'rgba(0, 0, 0, 1)',
+                    labels:dbDate
                 }
                 
-                ],
-                labels: dbDate,
+                ]
             },
             options: {
                 scales: {
@@ -468,65 +575,11 @@
                 }
             }   
         });
-        }
-    /*var newObj = {
-            disease:"ebola",
-            date:"2020-03-04",
-            forecast:{
-                dates:["2020-03-04"],
-                cases:[200]
-            },
-            dataset:{
-                dates:["2020-03-04"],
-                cases:[300]
-
-            }
-        };
-
-        var labels=[];
-        var labels1=[];
-        var data = [];
-        var data1 = [];
-        for (var key in newObj) {
-            if(key==="forecast"){
-                data = newObj[key].cases;
-                labels = newObj[key].dates;
-            }
-            if(key==="dataset"){
-                data1 = newObj[key].cases;
-                labels1 = newObj[key].dates;
-            }
-        }
-        var ctx = document.getElementById('myChart');
-        var data = data;
-        var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [{
-                    data: data,
-                    fill:false,
-                    pointStyle:false,
-                    label:"forecast"
-                },{
-                    data: data1,
-                    fill:false,
-                    pointStyle:false,
-                    label:"dataset"
-                }],
-                labels: labels,
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        stacked: true
-                    }]
-                }
-            }   
-        });*/
+        }*/
     </script>
     <script>
         function loadDiseases1 (select){
-            map.getSource("diseases").setData("http://54.211.232.101:8080/api/" + select);
+            map.getSource("diseases").setData("http://54.211.232.101:8080/api/diseases/" + select);
         }
     </script>
 </body>
