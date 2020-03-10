@@ -30,7 +30,7 @@
     <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
-    <div class="menu">
+    <!--<div class="menu">
         <div class="btn-group-vertical">
             <button type="button" class="btn btn-dark">Home</button>
             <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#dashboardModal">Dashboard</button>
@@ -38,6 +38,26 @@
             <select name="disease" id="diseasesMenu" onchange="loadDiseases1(this.value)" class="selectpicker">
             </select>
             <div class="invalid-feedback">Example invalid custom select feedback</div>
+        </div>
+    </div>
+-->
+    <div class="viewMenu">
+        <div class="dropleft">
+            <span class="btn" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">&#9881;</span>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <p class="dropdown-item">
+                    Dark mode
+                    <label class="switch">
+                        <input type="checkbox" onchange="darkMode(this)">
+                        <span class="slider round"></span>
+                    </label>
+                </p>
+                <p class="dropdown-item">
+                    Disease to show in the main map
+                    <select name="disease" id="diseasesMenu" onchange="loadDiseases1(this.value)" class="form-control">
+                    </select>
+                </p>
+                </div>
         </div>
     </div>
     <div id='map'></div>
@@ -85,7 +105,7 @@
                             </div>
                             <div class="form-group col">
                                 <label for="age">Age</label>
-                                <input type="number" name="age" id="age" class="form-control">
+                                <input type="number" name="age" id="age" class="form-control" min="0">
                             </div>
                         </div>
                         <div class="form-group">
@@ -99,9 +119,9 @@
                                 <label for="date">Date</label>
                             <input type="date" name="date" id="date" class="form-control">
                             </div>
-                            <div class="col">
+                            <div class="col" id="geocoder">
                                 <label for="geocoder">Adress</label>
-                                <div id="geocoder" class="geocoder"></div>
+                                <!--<div id="geocoder" class="form-control"></div>-->
                             </div>
                             
                         </div>
@@ -145,6 +165,9 @@
         loadDiseases();
         var datepicker = document.getElementById("datePicker");
         datepicker.setAttribute("max",new Date().format('Y-m-d'));
+        $('input, label, select').on('click', function(e){
+            e.stopPropagation();
+        });
         function loadDiseases(){
             var xhttp = new XMLHttpRequest();
             var responseJson;
@@ -206,7 +229,7 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRoamZ4MGphczNrcXA1NWw4dzN5MyJ9.-KxY1BPMApriPjGoMevTWg';
     var map = new mapboxgl.Map({
         container: 'map', // container id
-        style: 'mapbox://styles/mapbox/streets-v11',
+        style: 'mapbox://styles/mapbox/light-v10',
         center: [-96, 37.8], // starting position
         zoom:3
     });
@@ -348,12 +371,13 @@
         mapboxgl: mapboxgl
     });
     geocoder.on('result',getCoor);
-    
     function getCoor(){
         document.getElementById("lat").value = geocoder.mapMarker._lngLat.lat;
         document.getElementById("lng").value = geocoder.mapMarker._lngLat.lng;
     }
-    document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+    var geocoderInput = document.getElementById('geocoder');
+    geocoderInput.appendChild(geocoder.onAdd(map)).setAttribute("style","box-shadow:none;border:1px solid #ced4da;border-radius:0.25rem;min-width:0;width:100%;");
+    //geocoderInput.setAttribute("style","box-shadow:none;border:1px solid #ced4da;border-radius:0.25rem;");
     </script>
     <script>
         function postCase(){
@@ -581,6 +605,23 @@
         function loadDiseases1 (select){
             map.getSource("diseases").setData("http://54.211.232.101:8080/api/diseases/" + select);
         }
+    </script>
+    <script>
+        function darkMode(value){
+            if(value.checked){
+                enableDarkMode();
+            }
+            else{
+                disableDarkMode();
+            }
+        }
+        function enableDarkMode(){
+            map.setStyle('mapbox://styles/mapbox/dark-v10');
+        }
+        function disableDarkMode(){
+            map.setStyle('mapbox://styles/mapbox/light-v10');
+        }
+
     </script>
 </body>
 </html>
