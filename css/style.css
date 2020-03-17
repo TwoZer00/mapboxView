@@ -108,13 +108,18 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 input[type="number"] {
     -moz-appearance: textfield;
 }
-.viewMenu{
-  position: absolute;
-  left: 90%;
-  z-index: 1;
-}
 .viewMenu span:first-child{
   font-size: 40px;
+  padding: 0;
+  cursor: pointer;
+  /* disable text selection */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Old versions of Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome, Opera and Firefox */
 }
  /* The switch - the box around the slider */
  .switch {
@@ -187,4 +192,42 @@ input:checked + .slider:before {
   top: 100%;
   transform: translateY(-100%);
   border-radius: 15px 15px 0 0;
+}
+#geocoder{
+  position: relative;
+  width: 90%;
+  margin: auto;
+}
+.show{
+  display: block;
+}
+.hide{
+  display: none;
+}
+.input{
+  position: absolute;
+  display: block;
+  width: 100%;
+}
+.case{
+  position: relative;
+  width: 90%;
+  margin: auto;
+}
+.top{
+  position: absolute;
+  top: 5%;
+}
+.bottom{
+  position: absolute;
+  bottom: 5%;
+}
+
+.viewMenu{
+  position: relative;
+  z-index: 1;
+  display: block;
+  text-align: right;
+  width: 90%;
+  margin: auto;
 }

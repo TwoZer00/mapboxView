@@ -41,26 +41,40 @@
         </div>
     </div>
 -->
-    <div class="viewMenu">
-        <div class="dropleft">
-            <span class="btn" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">&#9881;</span>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <p class="dropdown-item">
-                    Dark mode
-                    <label class="switch">
-                        <input type="checkbox" onchange="darkMode(this)">
-                        <span class="slider round"></span>
-                    </label>
-                </p>
-                <p class="dropdown-item">
-                    Disease to show in the main map
-                    <select name="disease" id="diseasesMenu" onchange="loadDiseases1(this.value)" class="form-control">
-                    </select>
-                </p>
+
+    <div class="input top">
+        <div id="geocoder"></div>
+        <div class="viewMenu">
+            <div class="dropdown">
+                <span data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">&#9881;</span>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <p class="dropdown-item">
+                        Dark mode
+                        <label class="switch">
+                            <input type="checkbox" onchange="darkMode(this)">
+                            <span class="slider round"></span>
+                        </label>
+                    </p>
+                    <p class="dropdown-item">
+                        Disease to show in the main map
+                        <select name="disease" id="diseasesMenu" onchange="loadDiseases1(this.value)" class="form-control">
+                        </select>
+                    </p>
+                    <p class="dropdown-item">
+                        Graphs
+                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#dashboardModal">Dashboard</button>
+                    </p>
                 </div>
+            </div>
         </div>
     </div>
+    
     <div id='map'></div>
+    <div class="input bottom" >
+        <div class="case hide" id="inputButton">
+            <button class="btn btn-dark btn-block" id="button">add case</button>
+        </div>
+    </div>
     <div class="modal" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content animated bounceInDown fast">
@@ -121,7 +135,7 @@
                             </div>
                             <div class="col" id="geocoder">
                                 <label for="geocoder">Adress</label>
-                                <!--<div id="geocoder" class="form-control"></div>-->
+                                <input type="text" class="form-control" disabled id="adress">
                             </div>
                             
                         </div>
@@ -147,20 +161,174 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group row">
-                        <select class="selectpicker col" name="disease" id="diseasesDashboard" data-live-search="true" data-width="100%">
-                            <option value="">Select the disease</option>
-                        </select>
-                        <div class="col">
-                            <input type="date" class="form-control" id="datePicker">
+                    <form id="dashForm">
+                        <div class="form-group row">
+                            <select class="selectpicker col" name="disease" id="diseasesDashboard" data-live-search="true" data-width="100%">
+                                <option value="">Select the disease</option>
+                            </select>
+                            <div class="col">
+                                <input type="date" class="form-control" id="datePicker">
+                            </div>
                         </div>
-                    </div>
+                    </form>
                     <div class="invalid-feedback">Example invalid custom select feedback</div>
                     <canvas id="myChart" width="100%" height="100"></canvas>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRoamZ4MGphczNrcXA1NWw4dzN5MyJ9.-KxY1BPMApriPjGoMevTWg';
+        var map = new mapboxgl.Map({
+            container: 'map', // container id
+            style: 'mapbox://styles/mapbox/light-v10',
+            center: [-96, 37.8], // starting position
+            zoom:3
+        });
+        
+        map.on('load', loadMap); 
+        function loadMap() {
+            // Add a geojson point source.
+            // Heatmap layers also work with a vector tile source.
+            var selected = document.getElementById("diseasesMenu").value;
+            map.addSource('diseases', {
+            type: 'geojson',
+            // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+            // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+            data:
+            'http://54.211.232.101:8080/api/diseases/' + selected  ,
+            cluster: true,
+            clusterMaxZoom: 14, // Max zoom to cluster points on
+            clusterRadius: 30 // Radius of each cluster when clustering points (defaults to 50)
+            });
+
+            map.addLayer({
+                id: 'clusters',
+                type: 'circle',
+                source: 'diseases',
+                filter: ['has', 'point_count'],
+                paint: {
+                    // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+                    // with three steps to implement three types of circles:
+                    //   * Blue, 20px circles when point count is less than 100
+                    //   * Yellow, 30px circles when point count is between 100 and 750
+                    //   * Pink, 40px circles when point count is greater than or equal to 750
+                    'circle-color': [
+                        'step',
+                        ['get', 'point_count'],
+                        '#feda47',
+                        100,
+                        '#ff7800',
+                        750,
+                        '#ff0000'
+                        ],
+                        'circle-radius': [
+                        'step',
+                        ['get', 'point_count'],
+                        20,
+                        100,
+                        30,
+                        750,
+                        40
+                        ]
+                }
+                });
+                
+            map.addLayer({
+                id: 'cluster-count',
+                type: 'symbol',
+                source: 'diseases',
+                filter: ['has', 'point_count'],
+                layout: {
+                'text-field': '{point_count_abbreviated}',
+                'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                'text-size': 12
+                }
+                });
+                
+            map.addLayer({
+                id: 'unclustered-point',
+                type: 'circle',
+                source: 'diseases',
+                filter: ['!', ['has', 'point_count']],
+                paint: {
+                'circle-color': '#ff0000',
+                'circle-radius': 4,
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#fff'
+                }
+                });
+            // inspect a cluster on click
+            map.on('click', 'clusters', function(e) {
+                    var features = map.queryRenderedFeatures(e.point, {
+                    layers: ['clusters']
+                    });
+                    var clusterId = features[0].properties.cluster_id;
+                    map.getSource('diseases').getClusterExpansionZoom(
+                    clusterId,
+                    function(err, zoom) {
+                    if (err) return;
+                    
+                    map.easeTo({
+                    center: features[0].geometry.coordinates,
+                    zoom: zoom
+                    });
+                    }
+                    );
+                });    
+            // When a click event occurs on a feature in
+            // the unclustered-point layer, open a popup at
+            // the location of the feature, with
+            // description HTML from its properties.
+            map.on('click', 'unclustered-point', function(e) {
+                
+                var coordinates = e.features[0].geometry.coordinates.slice();
+                var mag = e.features[0].properties.mag;
+                var tsunami;
+                
+                if (e.features[0].properties.tsunami === 1) {
+                tsunami = 'yes'
+                } else {
+                tsunami = 'no'
+                }
+                
+                // Ensure that if the map is zoomed out such that
+                // multiple copies of the feature are visible, the
+                // popup appears over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+                
+                new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML("magnitude: " + mag + "<br>Was there a tsunami?: " + tsunami)
+                .addTo(map);
+                });
+            map.on('mouseenter', 'clusters', function() {
+                map.getCanvas().style.cursor = 'pointer';
+                });
+            map.on('mouseleave', 'clusters', function() {
+            map.getCanvas().style.cursor = '';
+            });
+        }       
+        
+        var geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            Marker:{
+                color:"black",
+                draggable:true
+            },
+            mapboxgl: mapboxgl
+        });
+        geocoder.on('result',getCoor);
+        function getCoor(){
+            document.getElementById("lat").value = geocoder.mapMarker._lngLat.lat;
+            document.getElementById("lng").value = geocoder.mapMarker._lngLat.lng;
+        }
+        var geocoderInput = document.getElementById('geocoder');
+        geocoderInput.appendChild(geocoder.onAdd(map)).setAttribute("style","box-shadow:none;border:1px solid #ced4da;border-radius:0.25rem;min-width:0;width:100%;max-width:100%;");
+    </script>
+
     <script>
         loadDiseases();
         var datepicker = document.getElementById("datePicker");
@@ -225,160 +393,135 @@
         }
 
     </script>
-    <script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoidHdvemVyMDAiLCJhIjoiY2s2NGRoamZ4MGphczNrcXA1NWw4dzN5MyJ9.-KxY1BPMApriPjGoMevTWg';
-    var map = new mapboxgl.Map({
-        container: 'map', // container id
-        style: 'mapbox://styles/mapbox/light-v10',
-        center: [-96, 37.8], // starting position
-        zoom:3
-    });
-    
-    map.on('load', function() {
-// Add a geojson point source.
-// Heatmap layers also work with a vector tile source.
-        var selected = document.getElementById("diseasesMenu").value;
-        map.addSource('diseases', {
-        type: 'geojson',
-        // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
-        // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
-        data:
-        'http://54.211.232.101:8080/api/diseases/' + selected  ,
-        cluster: true,
-        clusterMaxZoom: 14, // Max zoom to cluster points on
-        clusterRadius: 30 // Radius of each cluster when clustering points (defaults to 50)
-        });
 
-        map.addLayer({
-            id: 'clusters',
-            type: 'circle',
-            source: 'diseases',
-            filter: ['has', 'point_count'],
-            paint: {
-                // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
-                // with three steps to implement three types of circles:
-                //   * Blue, 20px circles when point count is less than 100
-                //   * Yellow, 30px circles when point count is between 100 and 750
-                //   * Pink, 40px circles when point count is greater than or equal to 750
-                'circle-color': [
-                    'step',
-                    ['get', 'point_count'],
-                    '#feda47',
-                    100,
-                    '#ff7800',
-                    750,
-                    '#ff0000'
-                    ],
-                    'circle-radius': [
-                    'step',
-                    ['get', 'point_count'],
-                    20,
-                    100,
-                    30,
-                    750,
-                    40
-                    ]
-            }
+
+    <script>
+        /*function loadMap() {
+            // Add a geojson point source.
+            // Heatmap layers also work with a vector tile source.
+            var selected = document.getElementById("diseasesMenu").value;
+            map.addSource('diseases', {
+            type: 'geojson',
+            // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+            // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+            data:
+            'http://54.211.232.101:8080/api/diseases/' + selected  ,
+            cluster: true,
+            clusterMaxZoom: 14, // Max zoom to cluster points on
+            clusterRadius: 30 // Radius of each cluster when clustering points (defaults to 50)
             });
-            
+
             map.addLayer({
-            id: 'cluster-count',
-            type: 'symbol',
-            source: 'diseases',
-            filter: ['has', 'point_count'],
-            layout: {
-            'text-field': '{point_count_abbreviated}',
-            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12
-            }
-            });
-            
+                id: 'clusters',
+                type: 'circle',
+                source: 'diseases',
+                filter: ['has', 'point_count'],
+                paint: {
+                    // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+                    // with three steps to implement three types of circles:
+                    //   * Blue, 20px circles when point count is less than 100
+                    //   * Yellow, 30px circles when point count is between 100 and 750
+                    //   * Pink, 40px circles when point count is greater than or equal to 750
+                    'circle-color': [
+                        'step',
+                        ['get', 'point_count'],
+                        '#feda47',
+                        100,
+                        '#ff7800',
+                        750,
+                        '#ff0000'
+                        ],
+                        'circle-radius': [
+                        'step',
+                        ['get', 'point_count'],
+                        20,
+                        100,
+                        30,
+                        750,
+                        40
+                        ]
+                }
+                });
+                
             map.addLayer({
-            id: 'unclustered-point',
-            type: 'circle',
-            source: 'diseases',
-            filter: ['!', ['has', 'point_count']],
-            paint: {
-            'circle-color': '#ff0000',
-            'circle-radius': 4,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff'
-            }
-            });
+                id: 'cluster-count',
+                type: 'symbol',
+                source: 'diseases',
+                filter: ['has', 'point_count'],
+                layout: {
+                'text-field': '{point_count_abbreviated}',
+                'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                'text-size': 12
+                }
+                });
+                
+            map.addLayer({
+                id: 'unclustered-point',
+                type: 'circle',
+                source: 'diseases',
+                filter: ['!', ['has', 'point_count']],
+                paint: {
+                'circle-color': '#ff0000',
+                'circle-radius': 4,
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#fff'
+                }
+                });
             // inspect a cluster on click
             map.on('click', 'clusters', function(e) {
-            var features = map.queryRenderedFeatures(e.point, {
-            layers: ['clusters']
-            });
-            var clusterId = features[0].properties.cluster_id;
-            map.getSource('diseases').getClusterExpansionZoom(
-            clusterId,
-            function(err, zoom) {
-            if (err) return;
-            
-            map.easeTo({
-            center: features[0].geometry.coordinates,
-            zoom: zoom
-            });
-            }
-            );
-            });
-            
+                    var features = map.queryRenderedFeatures(e.point, {
+                    layers: ['clusters']
+                    });
+                    var clusterId = features[0].properties.cluster_id;
+                    map.getSource('diseases').getClusterExpansionZoom(
+                    clusterId,
+                    function(err, zoom) {
+                    if (err) return;
+                    
+                    map.easeTo({
+                    center: features[0].geometry.coordinates,
+                    zoom: zoom
+                    });
+                    }
+                    );
+                });    
             // When a click event occurs on a feature in
             // the unclustered-point layer, open a popup at
             // the location of the feature, with
             // description HTML from its properties.
             map.on('click', 'unclustered-point', function(e) {
-            
-            var coordinates = e.features[0].geometry.coordinates.slice();
-            var mag = e.features[0].properties.mag;
-            var tsunami;
-            
-            if (e.features[0].properties.tsunami === 1) {
-            tsunami = 'yes'
-            } else {
-            tsunami = 'no'
-            }
-            
-            // Ensure that if the map is zoomed out such that
-            // multiple copies of the feature are visible, the
-            // popup appears over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-            
-            new mapboxgl.Popup()
-            .setLngLat(coordinates)
-            .setHTML("magnitude: " + mag + "<br>Was there a tsunami?: " + tsunami)
-            .addTo(map);
-            });
-            
+                
+                var coordinates = e.features[0].geometry.coordinates.slice();
+                var mag = e.features[0].properties.mag;
+                var tsunami;
+                
+                if (e.features[0].properties.tsunami === 1) {
+                tsunami = 'yes'
+                } else {
+                tsunami = 'no'
+                }
+                
+                // Ensure that if the map is zoomed out such that
+                // multiple copies of the feature are visible, the
+                // popup appears over the copy being pointed to.
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+                
+                new mapboxgl.Popup()
+                .setLngLat(coordinates)
+                .setHTML("magnitude: " + mag + "<br>Was there a tsunami?: " + tsunami)
+                .addTo(map);
+                });
             map.on('mouseenter', 'clusters', function() {
-            map.getCanvas().style.cursor = 'pointer';
-            });
+                map.getCanvas().style.cursor = 'pointer';
+                });
             map.on('mouseleave', 'clusters', function() {
             map.getCanvas().style.cursor = '';
             });
-    });
-    
-    
-    var geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        Marker:{
-            color:"black",
-            draggable:true
-        },
-        mapboxgl: mapboxgl
-    });
-    geocoder.on('result',getCoor);
-    function getCoor(){
-        document.getElementById("lat").value = geocoder.mapMarker._lngLat.lat;
-        document.getElementById("lng").value = geocoder.mapMarker._lngLat.lng;
-    }
-    var geocoderInput = document.getElementById('geocoder');
-    geocoderInput.appendChild(geocoder.onAdd(map)).setAttribute("style","box-shadow:none;border:1px solid #ced4da;border-radius:0.25rem;min-width:0;width:100%;");
-    //geocoderInput.setAttribute("style","box-shadow:none;border:1px solid #ced4da;border-radius:0.25rem;");
+        }*/
     </script>
+
     <script>
         function postCase(){
             var form = document.getElementById("form");
@@ -428,8 +571,19 @@
         }
     </script>
     <script>
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 201) {
+                createGraph(JSON.parse(this.responseText));
+            }
+        };
+        xhttp.open("POST", "http://54.211.232.101:8080/case", true);
+        xhttp.setRequestHeader('Content-type', 'application/json');
+        xhttp.send(json);
+
         var json = {"disease": "COVID_19", "date": "2020-03-05", "forecast": [[1911.5736842155457, "2020-01-29"], [2138.894736856222, "2020-01-30"], [2366.2157894670963, "2020-01-31"], [2593.536842107773, "2020-02-01"], [2820.8578947484493, "2020-02-02"], [3048.1789473593235, "2020-02-03"], [3275.5, "2020-02-04"], [3502.8210526406765, "2020-02-05"], [3730.1421052515507, "2020-02-06"], [3957.463157892227, "2020-02-07"], [4184.784210532904, "2020-02-08"], [4412.10526317358, "2020-02-09"], [4639.426315784454, "2020-02-10"], [4866.747368425131, "2020-02-11"], [5094.068421065807, "2020-02-12"], [5321.3894736766815, "2020-02-13"], [5548.710526317358, "2020-02-14"], [5776.0315789580345, "2020-02-15"], [6003.352631568909, "2020-02-16"], [6230.673684209585, "2020-02-17"], [6457.994736850262, "2020-02-18"], [6685.315789461136, "2020-02-19"], [6912.636842101812, "2020-02-20"], [7139.957894742489, "2020-02-21"], [7367.278947383165, "2020-02-22"], [7594.5999999940395, "2020-02-23"], [7821.921052634716, "2020-02-24"], [8049.2421052753925, "2020-02-25"], [8276.563157886267, "2020-02-26"], [8503.884210526943, "2020-02-27"], [8731.20526316762, "2020-02-28"], [8958.526315778494, "2020-02-29"], [9185.84736841917, "2020-03-01"], [9413.168421059847, "2020-03-02"], [9640.489473700523, "2020-03-03"], [9867.810526311398, "2020-03-04"], [10095.131578952074, "2020-03-05"], [10322.45263159275, "2020-03-06"], [10549.773684203625, "2020-03-07"], [10777.094736844301, "2020-03-08"], [11004.415789484978, "2020-03-09"], [11231.736842095852, "2020-03-10"], [11459.057894736528, "2020-03-11"], [11686.378947377205, "2020-03-12"], [11913.699999988079, "2020-03-13"], [12141.021052628756, "2020-03-14"], [12368.342105269432, "2020-03-15"], [12595.663157910109, "2020-03-16"], [12822.984210520983, "2020-03-17"], [13050.30526316166, "2020-03-18"], [13277.626315802336, "2020-03-19"], [13504.94736841321, "2020-03-20"], [13732.268421053886, "2020-03-21"], [13959.589473694563, "2020-03-22"], [14186.910526305437, "2020-03-23"], [14414.231578946114, "2020-03-24"], [14641.55263158679, "2020-03-25"], [14868.873684227467, "2020-03-26"], [15096.19473683834, "2020-03-27"], [15323.515789479017, "2020-03-28"], [15550.836842119694, "2020-03-29"], [15778.157894730568, "2020-03-30"], [16005.478947371244, "2020-03-31"], [16232.800000011921, "2020-04-01"], [16460.121052622795, "2020-04-02"], [16687.44210526347, "2020-04-03"], [16914.763157904148, "2020-04-04"]], "data": [[1725, "2020-01-29"], [1679, "2020-01-27"], [1073, "2020-01-25"], [1584, "2020-01-28"], [780, "2020-01-26"], [452, "2020-01-30"], [287, "2020-01-24"], [3771, "2020-02-04"], [402, "2020-01-21"], [79, "2020-02-05"], [225, "2020-01-22"], [2987, "2020-02-08"], [99, "2020-01-23"], [1693, "2020-01-31"], [2904, "2020-02-02"], [7367, "2020-02-01"], [4305, "2020-02-03"], [6566, "2020-02-06"], [2661, "2020-02-07"]]};
-        //json = JSON.parse(json);
+        
+        function createGraph(json){
         var forecast = json.forecast;
         var dataset = json.data;
         var labels = [];
@@ -489,123 +643,10 @@
                 }
             }
         });
-        /*var ctx = document.getElementById('myChart');
-            var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [/*{
-                    data: data,
-                    fill:false,
-                    pointStyle:false,
-                    label:"forecast",
-                    pointRadius:0,
-                    borderColor:'rgba(255,0,0,0.5)',
-                    labels:labels/*,
-                    trendlineLinear: {
-                                    style: "#3e95cd",
-                                    lineStyle: "line",
-                                    width: 1
-                                }
-                },{
-                    data: newData,
-                    fill:false,
-                    pointStyle:false,
-                    label:"dataset",
-                    showLine:false,
-                    pointBackgroundColor:'rgba(0, 0, 0, 1)',
-                    labels: labels1,
-                    type:'scatter'
-                }
-                
-                ],
-                labels:labels
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        stacked: true
-                    }]
-                }
-            }   
-        });*/
-        
-        /*
-        function graph(disease){
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    createGraph(this);
-                }
-            };
-            xhttp.open("GET", "http://54.211.232.101:8080/forecast?disease="+disease, true);
-            xhttp.send();
-        }
-        function createGraph(request){
-            var json = JSON.parse(request.responseText);
-            json = json._embedded.forecast[0];
-            console.log(JSON.stringify(json[0]));
-            var fcDate = [];
-            var fcCase= [];
-            var dbDate= [];
-            var dbCase= [];
-            for (var key in json) {
-                //console.log(typeof(key) + " " + key);
-                if(key==="fcDates"){
-                    fcDate = json[key];
-                }
-                if(key==="fcCases"){
-                    fcCase = json[key];
-                }
-                if(key==="dbDates"){
-                    dbDate = json[key];
 
-                }
-                if(key==="dbCases"){
-                    dbCase = json[key];
-
-                }
-            }
-            dbDate.reverse();   
-            console.log("----"+fcDate.length + "\n" + fcCase.length + "\n" + dbCase.length + "\n" + dbDate.length);
-            var ctx = document.getElementById('myChart');
-            var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [{
-                    data: fcCase,
-                    fill:false,
-                    pointStyle:false,
-                    label:"forecast",
-                    pointRadius:0,
-                    borderColor:'rgba(255,0,0,0.5)',
-                    labels:fcDate
-                },{
-                    data: dbCase,
-                    fill:false,
-                    pointStyle:false,
-                    label:"dataset",
-                    showLine:false,
-                    pointBackgroundColor:'rgba(0, 0, 0, 1)',
-                    labels:dbDate
-                }
-                
-                ]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        stacked: true
-                    }]
-                }
-            }   
-        });
-        }*/
+    }
     </script>
-    <script>
-        function loadDiseases1 (select){
-            map.getSource("diseases").setData("http://54.211.232.101:8080/api/diseases/" + select);
-        }
-    </script>
+    
     <script>
         function darkMode(value){
             if(value.checked){
@@ -616,12 +657,37 @@
             }
         }
         function enableDarkMode(){
+            var newMap = map;
             map.setStyle('mapbox://styles/mapbox/dark-v10');
+            document.getElementsByClassName("viewMenu")[0].style.color = "white";
         }
         function disableDarkMode(){
             map.setStyle('mapbox://styles/mapbox/light-v10');
+            document.getElementsByClassName("viewMenu")[0].style.color = "black";
         }
 
+    </script>
+
+    <script>
+        function loadDiseases1 (select){
+            map.getSource("diseases").setData("http://54.211.232.101:8080/api/diseases/" + select);
+        }
+    </script>
+    <script>
+        geocoder.on('result',function(){
+            document.getElementById("inputButton").classList.remove("hide");
+            $('#inputButton').addClass('animated bounceInUp');
+            document.getElementById("button").onclick = function(){
+                $('#formModal').modal('show');
+            };
+            document.getElementById("adress").value = geocoder._typeahead.selected.place_name;
+        });
+        document.getElementsByClassName("mapboxgl-ctrl-geocoder--button")[0].onclick = function(){
+            document.getElementById("inputButton").classList.add("hide");
+        };
+    </script>
+    <script>
+        
     </script>
 </body>
 </html>
