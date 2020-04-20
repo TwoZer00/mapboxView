@@ -344,7 +344,7 @@
                 // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
                 // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
                 data:
-                'http://54.211.232.101:8080/api/diseases/' + selected  ,
+                '//54.211.232.101:8080/api/diseases/' + selected  ,
                 cluster: true,
                 clusterMaxZoom: 14, // Max zoom to cluster points on
                 clusterRadius: 30 // Radius of each cluster when clustering points (defaults to 50)
@@ -495,7 +495,7 @@
                     $('.selectpicker').selectpicker('refresh');
                 }
             };
-            xhttp.open("GET", "http://54.211.232.101:8080/api/diseases/", true);
+            xhttp.open("GET", "//54.211.232.101:8080/api/diseases/", true);
             xhttp.send();
         }
         function loadSelects(json){
@@ -705,7 +705,7 @@
                         },1500);
                     }
                 };
-                xhttp.open("POST", "http://54.211.232.101:8080/case", true);
+                xhttp.open("POST", "//54.211.232.101:8080/case", true);
                 xhttp.setRequestHeader('Content-type', 'application/json');
                 xhttp.send(json);
             }
@@ -815,7 +815,7 @@
 
     <script>
         function loadDiseases1 (select){
-            map.getSource("diseases").setData("http://54.211.232.101:8080/api/diseases/" + select);
+            map.getSource("diseases").setData("//54.211.232.101:8080/api/diseases/" + select);
         }
     </script>
     <script>
