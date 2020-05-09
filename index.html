@@ -50,15 +50,32 @@
                         </label>
                         
                     </div>-->
-                    <p class="dropdown-item">
-                        Disease to show in the map
-                        <select name="disease" id="diseasesMenu" onchange="loadDiseases1(this.value)" class="form-control">
-                        </select>
-                    </p>
-                    <p class="dropdown-item">
-                        Graphs
-                        <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#dashboardModal">Dashboard</button>
-                    </p>
+                    <div class="dropdown-item-text">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <p>Disease</p> 
+                                </div>
+                                <div class="col">
+                                    <select name="disease" id="diseasesMenu" onchange="loadDiseases1(this.value)" class="custom-select"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-item-text">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col">
+                                    <p>Graphs</p>
+                                </div>
+                                <div class="col">
+                                    <button type="button" class="btn btn-dark btn-block" data-toggle="modal" data-target="#dashboardModal">Dashboard</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item-text text-center text-muted">View by TwoZer00 &copy; 2020 <br> Epidemic watcher 0.1</div>
                 </div>
             </div>
         </div>
@@ -482,7 +499,7 @@
         loadDiseases();
         var datepicker = document.getElementById("datePicker");
         datepicker.setAttribute("max",new Date().format('Y-m-d'));
-        $('input, label, select').on('click', function(e){
+        $('input, label, select, p').on('click', function(e){
             e.stopPropagation();
         });
         function loadDiseases(){
@@ -615,8 +632,7 @@
             var newData1=[];
             for (var key in forecast) {
                 var newObj = forecast[key];
-                //data.push(newObj[0]);
-                //labels.push(newObj[1]);
+                
                 var jsonObj = {x: new Date(newObj[1]), y: newObj[0]};
                 newData1.push(jsonObj);
             }
@@ -625,8 +641,6 @@
             var newData=[];
             for(var key in dataset){
                 var newObj = dataset[key];
-                //data1.push(newObj[0]);
-                //labels1.push(newObj[1]);
                 console.log(typeof(newObj[1]));
                 var jsonObj = {x: new Date(newObj[1]), y: newObj[0]};
                 newData.push(jsonObj);
