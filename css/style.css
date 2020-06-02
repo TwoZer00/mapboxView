@@ -222,6 +222,7 @@ input:checked + .slider:before {
 .bottom{
   position: absolute;
   bottom: 5%;
+  overflow: hidden;
 }
 
 .viewMenu{
