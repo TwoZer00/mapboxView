@@ -18,19 +18,34 @@
 <body>
     <div class="container-fluid p-0 m-0 position-relative">
         <div id="map" style="width: 100vw; height: 100vh;"></div>
-        <div class="position-absolute top-0 start-50 translate-middle-x container-fluid mt-3 rounded-top border border-1 p-0" id="collapseContainer" style="max-width: 50vw;">
-            <div class="card-header bg-dark d-block" style=" transform: rotate(0);">
-                <a class="text-decoration-none link-light stretched-link" style="z-index: 1;"  data-bs-toggle="collapse" href="#collapseInformation" role="button" aria-expanded="false" aria-controls="">Select disease</a>
-                <div id="infContainer" class="d-inline"></div>
-            </div>
-            <div class="collapse" id="collapseInformation">
-                <div class="card rounded-0 rounded-bottom bg-dark text-white">
-                    <div class="card-body" id="information">
-                        <select class="form-select bg-dark text-white border-select-dark mb-2" id="diseases" onchange="loadCasesByDisease(this.value)">
-                            <option selected disabled>Select one disease</option>
-                        </select>
-                        <h5 class="card-title">Epidemic watcher</h5>
-                        <p class="card-text">Web application where you can see cases of epidemic diseases spread around the world.</p>
+        <div class="position-absolute top-0 start-50 translate-middle-x container-fluid mt-3 p-0" id="collapseContainer">
+            <div class="d-flex justify-content-center">
+                <div class="container-md px-2 m-0">
+                    <div class="rounded-top border border-1 ">
+                        <div class="card-header bg-dark d-block" style=" transform: rotate(0);">
+                            <div class="row">
+                                <div class="col-auto">
+                                    <a id="header" class="text-decoration-none link-light stretched-link" style="z-index: 1;"  data-bs-toggle="collapse" href="#collapseInformation" role="button" aria-expanded="false" aria-controls="">Select disease</a>
+                                    <div id="infContainer" class="d-inline"></div>
+                                </div>
+                                <div class="col position-relative">
+                                    <div id="newsContainer" class="text-light overflow-hidden position-absolute" style="width: 100vw;">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="collapseInformation">
+                            <div class="card rounded-0 rounded-bottom bg-dark text-white h-100">
+                                <div class="card-body" id="information">
+                                    <select class="form-select bg-dark text-white border-select-dark mb-2" id="diseases" onchange="loadCasesByDisease(this.value)">
+                                        <option selected disabled>Select one disease</option>
+                                    </select>
+                                    <h5 class="card-title">Epidemic watcher</h5>
+                                    <p class="card-text">Web application where you can see cases of epidemic diseases spread around the world.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

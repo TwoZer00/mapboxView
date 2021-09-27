@@ -1,7 +1,9 @@
 const apiURL = 'https://damp-ravine-40090.herokuapp.com/api/diseases';
 const wikiApiURL ='https://en.wikipedia.org/api/rest_v1/page/summary/';
+const newsApiURL = 'https://gnews.io/api/v4/search?token=a9aaf353b0951622bab9755945f51916&sortby=relevance&max=5';
 
 loadDiseases();
+//getNews('\"COVID-19\"')
 //loadTotalCasesByDisease();
 //loadCasesByDisease('COVID_19');
 
@@ -40,5 +42,11 @@ async function getSummary(disease){
     console.log('a')
     let data = await (await fetch(`${wikiApiURL}${disease}`)).json();
     setInformation(data);
+    console.log(data);
+}
+
+async function getNews(disease){
+    let data = await (await fetch(`${newsApiURL}&q="${disease}"`)).json();
+    return data;
     console.log(data);
 }

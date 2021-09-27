@@ -55,15 +55,21 @@ function getCompleteName(element){
 function setInformation(data){
   let informationParentContainer = document.getElementById('information');
   let selectDiseases = document.getElementById('diseases');
-  let headerTitle = document.querySelector('.card-header').children[0];
+  let headerTitle = document.querySelector('#header');
   let infContainer = document.getElementById('infContainer');
-  let tempContainer;
+  let newsContainer = document.getElementById('newsContainer');
   informationParentContainer.querySelector('.card-title').textContent = data.title;
   informationParentContainer.querySelectorAll('.card-text')[0].innerHTML = data.description;
   headerTitle.textContent = data.title;
   loadTotalCasesByDisease(selectDiseases.value).then((data)=>{
-    infContainer.innerHTML = `<span class="bi bi-person-fill text-white">${data[0].cases}</span>`;
+    infContainer.innerHTML = `<span class="bi bi-person-fill ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'text-white':'text-dark'}">${data[0].cases}</span>`;
   });
+  // getNews(selectDiseases.value).then((data)=>{
+  //   (data.articles).forEach(element=>{
+  //     newsContainer.textContent+=element.title+' - ';
+  //   });
+  //   console.log(data.articles);
+  // });
   collapse.hide();
 }
 document.getElementById('collapseInformation').addEventListener('show.bs.collapse',()=>{
