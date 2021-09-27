@@ -8,7 +8,7 @@ let map = new mapboxgl.Map({
             center: [-122.420679, 37.772537], // starting position [lng, lat]
             zoom: 2, // starting zoom,
             dragRotate:false,
-            touchZoomRotate:false,
+            boxZoom:false,
             style: window.matchMedia('(prefers-color-scheme: dark)').matches ? mapStyles[1]:mapStyles[0], // style URL or style object
         });
 window.matchMedia('(prefers-color-scheme: dark)').matches ? setDarkMode():setLightMode();
