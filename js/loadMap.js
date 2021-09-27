@@ -6,7 +6,8 @@ mapboxgl.accessToken  = accesToken;
 let map = new mapboxgl.Map({
             container: 'map', // container ID
             center: [-122.420679, 37.772537], // starting position [lng, lat]
-            zoom: 2, // starting zoom
+            zoom: 2, // starting zoom,
+            dragRotate:false,
             style: window.matchMedia('(prefers-color-scheme: dark)').matches ? mapStyles[1]:mapStyles[0], // style URL or style object
         });
 window.matchMedia('(prefers-color-scheme: dark)').matches ? setDarkMode():setLightMode();
