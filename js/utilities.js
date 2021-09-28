@@ -16,6 +16,7 @@ function setLightMode(){
       element.classList.toggle('text-dark',true);
       element.classList.toggle('link-dark',true);
     });
+    document.documentElement.style.cssText = "--marquee-bg: var(--bs-light)";
 }
 
 function setDarkMode(){
@@ -36,4 +37,5 @@ function setDarkMode(){
     element.classList.toggle('link-light',true);
     element.classList.toggle('text-white',true);
   });
+  document.documentElement.style.cssText = "--marquee-bg: var(--bs-dark)";
 }
