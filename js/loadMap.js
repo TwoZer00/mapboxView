@@ -7,12 +7,10 @@ let map = new mapboxgl.Map({
             container: 'map', // container ID
             center: [-122.420679, 37.772537], // starting position [lng, lat]
             zoom: 2, // starting zoom,
-            dragRotate:false,
-            boxZoom:false,
-            touchZoomRotate:false,
+            maxPitch:0,
             style: window.matchMedia('(prefers-color-scheme: dark)').matches ? mapStyles[1]:mapStyles[0], // style URL or style object
         });
-//map.touchZoomRotate.disableRotation();
+map.touchZoomRotate.disableRotation();
 map.on('click');
 function addNewSource(data){
     map.addSource('cases',{
