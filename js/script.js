@@ -64,12 +64,17 @@ function setInformation(data){
   loadTotalCasesByDisease(selectDiseases.value).then((data)=>{
     infContainer.innerHTML = `<span class="bi bi-person-fill ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'text-white':'text-dark'}">${data[0].cases}</span>`;
   });
-  // getNews(selectDiseases.value).then((data)=>{
-  //   (data.articles).forEach(element=>{
-  //     newsContainer.textContent+=element.title+' - ';
-  //   });
-  //   console.log(data.articles);
-  // });
+  let parentNews = document.createElement('div');
+
+  if(newsContainer.children.length>0) newsContainer.children[0].remove();
+  getNews(selectDiseases.value).then((data)=>{
+    (data.articles).forEach((element,index)=>{
+      console.log(index,(data.articles).length)
+      parentNews.textContent+= `${element.title}${(index<(data.articles).length-1)?' - ':''}` ;
+    });
+    newsContainer.appendChild(parentNews);
+    console.log(data.articles);
+  });
   collapse.hide();
 }
 document.getElementById('collapseInformation').addEventListener('show.bs.collapse',()=>{

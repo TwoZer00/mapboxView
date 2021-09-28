@@ -6,3 +6,53 @@
   border-color: black;
   box-shadow: 0 0 0 0.25rem rgba(12, 12, 12, 0.25);
 }
+
+.marquee {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.marquee::after,
+.marquee::before {
+  position: absolute;
+  top: 0%;
+  width: 5rem;
+  height: 100%;
+  content: "";
+  z-index: 1;
+}
+
+.marquee::after {
+  right: 0;
+  background-image: linear-gradient(
+    to left,
+    var(--bs-dark) 0%,
+    transparent 100%
+  );
+}
+
+.marquee::before {
+  left: 0;
+  background-image: linear-gradient(
+    to right,
+    var(--bs-dark) 0%,
+    transparent 100%
+  );
+}
+
+.marquee div {
+  padding-left: 100%;
+  display: inline-block;
+  animation: animate linear infinite;
+  animation-duration: 45s;
+}
+
+@keyframes animate {
+  100% {
+    transform: translate(-100%, 0);
+  }
+}
+
+.marquee div:hover {
+  animation-play-state: paused;
+}
