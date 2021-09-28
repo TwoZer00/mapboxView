@@ -80,3 +80,5 @@ document.getElementById('collapseInformation').addEventListener('hide.bs.collaps
   document.getElementById('collapseContainer').classList.toggle('rounded',false);
   document.getElementById('collapseContainer').classList.toggle('rounded-top',true);
 });
+
+window.matchMedia('(prefers-color-scheme: dark)').matches ? setDarkMode():setLightMode();

@@ -9,9 +9,10 @@ let map = new mapboxgl.Map({
             zoom: 2, // starting zoom,
             dragRotate:false,
             boxZoom:false,
+            touchZoomRotate:false,
             style: window.matchMedia('(prefers-color-scheme: dark)').matches ? mapStyles[1]:mapStyles[0], // style URL or style object
         });
-window.matchMedia('(prefers-color-scheme: dark)').matches ? setDarkMode():setLightMode();
+//map.touchZoomRotate.disableRotation();
 map.on('click');
 function addNewSource(data){
     map.addSource('cases',{
