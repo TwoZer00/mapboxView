@@ -12,7 +12,6 @@ let temp;
 async function loadDiseases(){
     let data = await (await fetch(`${apiURL}/`)).json();
     setDiseases(data);
-    console.log(data);
 }
 async function loadTotalCasesByDiseases(){
     let data = await (await fetch(`${apiURL}/all`)).json();
@@ -21,13 +20,11 @@ async function loadTotalCasesByDiseases(){
 async function loadTotalCasesByDisease(disease){
     let data = await (await fetch(`${apiURL}/report/${disease}`)).json();
     return data;
-    console.log(data);
 }
 async function loadCasesByDisease(disease){
     modal.show();
     let data = await (await fetch(`${apiURL}/${disease}`)).json();
     temp = data;
-    console.log(data);
     getSummary(disease.toLowerCase());
     if(map.getSource('cases')){
         map.getSource('cases').setData(temp);
@@ -39,7 +36,6 @@ async function loadCasesByDisease(disease){
 }
 
 async function getSummary(disease){
-    console.log('a')
     let data = await (await fetch(`${wikiApiURL}${disease}`)).json();
     setInformation(data);
     console.log(data);
@@ -48,5 +44,4 @@ async function getSummary(disease){
 async function getNews(disease){
     let data = await (await fetch(`${newsApiURL}&q="${disease}"`)).json();
     return data;
-    console.log(data);
 }
