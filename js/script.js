@@ -66,7 +66,6 @@ function setInformation(data){
     infContainer.innerHTML = `<span class="bi bi-person-fill ${window.matchMedia('(prefers-color-scheme: dark)').matches ? 'text-white':'text-dark'}">${data[0].cases}</span>`;
   });
   let parentNews = document.createElement('div');
-
   if(newsContainer.children.length>0) newsContainer.children[0].remove();
   getNews(selectDiseases.value).then((data)=>{
     (data.articles).forEach((element,index)=>{
@@ -75,6 +74,10 @@ function setInformation(data){
     });
     newsContainer.appendChild(parentNews);
     console.log(data.articles);
+  });
+  map.flyTo({
+    center:[0,0],
+    zoom: 1.5,
   });
   collapse.hide();
 }
