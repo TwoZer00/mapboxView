@@ -36,7 +36,7 @@ function setDiseases(data){
     }
     selectDiseases.appendChild(option);
   });
-  selectDiseases.classList.remove('disabled')
+  selectDiseases.removeAttribute('disabled');
 }
 
 function getCompleteName(element){

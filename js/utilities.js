@@ -18,7 +18,6 @@ function setLightMode(){
     });
     document.documentElement.style.cssText = "--marquee-bg: var(--bs-light)";
 }
-
 function setDarkMode(){
   let elementsBG = document.querySelectorAll('.bg-light');
   let elementsText = document.querySelectorAll('.text-dark, .link-dark');
@@ -38,4 +37,22 @@ function setDarkMode(){
     element.classList.toggle('text-white',true);
   });
   document.documentElement.style.cssText = "--marquee-bg: var(--bs-dark)";
+}
+function toast(message){
+  let toastHTML = `<div class="d-flex">
+    <div class="toast-body">
+      ${message}. Please try again.
+    </div>
+    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>`;
+  let toast = document.createElement('div');
+  toast.innerHTML = toastHTML;
+  toast.classList.add('toast', 'align-items-center', 'text-dark', 'bg-warning', 'border-0');
+  toast.setAttribute('role','alert');
+  toast.setAttribute('aria-live','assertive');
+  toast.setAttribute('aria-atomic','true');
+  let toastContainer = document.getElementById('toastPlacement');
+  toastContainer.appendChild(toast);
+  let toasTBS = new bootstrap.Toast(toast);
+  toasTBS.show();
 }

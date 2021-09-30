@@ -39,7 +39,7 @@
                         <div class="collapse" id="collapseInformation">
                             <div class="card rounded-0 rounded-bottom bg-dark text-white h-100">
                                 <div class="card-body" id="information">
-                                    <select class="form-select bg-dark text-white border-select-dark mb-2 disabled" id="diseases" onchange="loadCasesByDisease(this.value)">
+                                    <select class="form-select bg-dark text-white border-select-dark mb-2" disabled id="diseases" onchange="loadCasesByDisease(this.value)">
                                         <option selected disabled>Select one disease</option>
                                     </select>
                                     <h5 class="card-title">Epidemic watcher</h5>
@@ -50,6 +50,9 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="toast-container position-absolute bottom-0 start-50 translate-middle-x p-3" id="toastPlacement">
+
         </div>
     </div>
     <div class="modal" id="exampleModal" tabindex="-1" aria-labelledby="loadingModal" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">

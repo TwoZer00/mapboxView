@@ -10,12 +10,16 @@ loadDiseases();
 let temp;
 
 async function loadDiseases(){
-    let data = await (await fetch(`${apiURL}/`)).json();
-    setDiseases(data);
+    try{
+        let data = await (await fetch(`${apiURL}/`)).json();
+        setDiseases(data);  
+    }
+    catch(e){
+        toast(e.message);
+    }
 }
 async function loadTotalCasesByDiseases(){
     let data = await (await fetch(`${apiURL}/all`)).json();
-    console.log(data);
 }
 async function loadTotalCasesByDisease(disease){
     let data = await (await fetch(`${apiURL}/report/${disease}`)).json();
@@ -23,25 +27,34 @@ async function loadTotalCasesByDisease(disease){
 }
 async function loadCasesByDisease(disease){
     modal.show();
-    let data = await (await fetch(`${apiURL}/${disease}`)).json();
-    temp = data;
-    getSummary(disease.toLowerCase());
-    if(map.getSource('cases')){
-        map.getSource('cases').setData(temp);
-    }
-    else{
-        addNewSource(temp);
+    try{
+        let data = await (await fetch(`${apiURL}/${disease}`)).json();
+        temp = data;
+        getSummary(disease.toLowerCase());
+        if(map.getSource('cases')){
+            map.getSource('cases').setData(temp);
+        }
+        else{
+            addNewSource(temp);
+        }
+    }catch(e){
+        toast(e.message);
     }
     modal.hide();
 }
-
 async function getSummary(disease){
-    let data = await (await fetch(`${wikiApiURL}${disease}`)).json();
-    setInformation(data);
-    console.log(data);
+    try {
+        let data = await (await fetch(`${wikiApiURL}${disease}`)).json();
+        setInformation(data);
+    } catch (e) {
+        toast(e.message);
+    }
 }
-
 async function getNews(disease){
-    let data = await (await fetch(`${newsApiURL}&q="${disease}"`)).json();
-    return data;
+    try {
+        let data = await (await fetch(`${newsApiURL}&q="${disease}"`)).json();
+        return data;
+    } catch (e) {
+        toast(e.message);
+    }
 }
