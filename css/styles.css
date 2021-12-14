@@ -11,6 +11,21 @@
   white-space: nowrap;
   overflow: hidden;
 }
+.form-select:disabled {
+  background-color: rgba(59, 59, 59, 0.507);
+}
+
+select.dark {
+  background-color: var(--bs-dark);
+  color: var(--bs-white);
+}
+select.light {
+  background-color: var(--bs-light);
+  color: var(--bs-dark);
+}
+select:disabled {
+  color: rgba(255, 255, 255, 0.25);
+}
 
 .marquee::after,
 .marquee::before {
